@@ -72,8 +72,8 @@
         .btn-excel { background: #1D6F42; color: white; border: none; padding: 9px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 13px; }
         .btn-backup { background: #6f42c1; color: white; border: none; padding: 9px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 13px; }
         .btn-restore { background: #fd7e14; color: white; border: none; padding: 9px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 13px; }
-        .btn-edit { background: #ffc107; color: #000; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 12px; margin-right: 5px; font-weight: bold; }
-        .btn-transfer { background: #17a2b8; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 12px; margin-right: 5px; font-weight: bold; }
+        .btn-edit { background: #ffc107; color: #000; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 12px; margin-right: 3px; font-weight: bold; }
+        .btn-transfer { background: #17a2b8; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 12px; margin-right: 3px; font-weight: bold; }
         .btn-delete { background: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 12px; }
         .btn-logout { background: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; }
 
@@ -779,7 +779,10 @@
         let html = '';
         let sno = 1;
 
-        for (const bName in bookerMap) {
+        // Sort Booker Names Alphabetically (A to Z)
+        const sortedBookers = Object.keys(bookerMap).sort((a, b) => a.localeCompare(b));
+
+        for (const bName of sortedBookers) {
             const data = bookerMap[bName];
             const net = data.credit - data.recovery;
             let bCreditShops = 0;
@@ -865,7 +868,9 @@
         }
 
         select.disabled = false;
-        bookerSet.forEach(b => select.innerHTML += `<option value="${b}">${b}</option>`);
+        // Sort Bookers A to Z
+        const sortedBookers = Array.from(bookerSet).sort((a, b) => a.localeCompare(b));
+        sortedBookers.forEach(b => select.innerHTML += `<option value="${b}">${b}</option>`);
         renderBookerDetail();
     }
 
@@ -903,7 +908,10 @@
         let html = '';
         let sno = 1;
 
-        for(const sName in shopSummary) {
+        // Sort Shops Alphabetically (A to Z)
+        const sortedShops = Object.keys(shopSummary).sort((a, b) => a.localeCompare(b));
+
+        for(const sName of sortedShops) {
             const data = shopSummary[sName];
             const bal = data.credit - data.recovery;
             if(hideZero && bal === 0) continue;
@@ -952,7 +960,11 @@
         let html = '';
         let sno = 1;
 
-        for(const sName in shopsMap) {
+        // Sort Shops Alphabetically (A to Z)
+        const sortedShops = Object.keys(shopsMap).sort((a, b) => a.localeCompare(b));
+        const sortedBookersList = Array.from(bookersList).sort((a, b) => a.localeCompare(b));
+
+        for(const sName of sortedShops) {
             const data = shopsMap[sName];
             
             // BOOKER ISOLATION RESTRICTION: Non-admin users view ONLY their own shops
@@ -964,9 +976,11 @@
             if(hideZero && net === 0) continue;
 
             let bookerOptionsHTML = '';
-            bookersList.forEach(b => {
+            sortedBookersList.forEach(b => {
                 bookerOptionsHTML += `<option value="${b}" ${b === data.booker ? 'selected' : ''}>${b}</option>`;
             });
+
+            const escapedShopName = sName.replace(/'/g, "\\'");
 
             html += `
                 <tr>
@@ -978,10 +992,12 @@
                     <td class="text-right">${formatBalance(net)}</td>
                     <td class="no-print text-center">
                         ${isAdmin ? `
-                            <select id="transferSelect_${sno}" style="padding: 4px; font-size: 11px; width: auto;">
+                            <button class="btn-edit" onclick="editShopName('${escapedShopName}')">Edit</button>
+                            <button class="btn-delete" onclick="deleteShop('${escapedShopName}')">Delete</button>
+                            <select id="transferSelect_${sno}" style="padding: 4px; font-size: 11px; width: auto; margin-left: 5px;">
                                 ${bookerOptionsHTML}
                             </select>
-                            <button class="btn-transfer" onclick="transferSingleShop('${sName.replace(/'/g, "\\'")}', 'transferSelect_${sno}')">Transfer 🔄</button>
+                            <button class="btn-transfer" onclick="transferSingleShop('${escapedShopName}', 'transferSelect_${sno}')">Transfer 🔄</button>
                         ` : '-'}
                     </td>
                 </tr>
@@ -989,6 +1005,36 @@
         }
 
         tbody.innerHTML = html;
+    }
+
+    function editShopName(oldShopName) {
+        const newShopName = prompt("Enter new Shop Name for: " + oldShopName, oldShopName);
+        if (!newShopName || newShopName.trim() === "") return;
+        const cleanNewName = cleanStr(newShopName);
+        if (cleanNewName === oldShopName) return;
+
+        let updatedCount = 0;
+        for (let i = 0; i < transactions.length; i++) {
+            if (cleanStr(transactions[i].shop) === oldShopName) {
+                transactions[i].shop = cleanNewName;
+                updatedCount++;
+            }
+        }
+
+        if (updatedCount > 0) {
+            saveTransactionsToCloud();
+            alert(`Success! "${oldShopName}" name changed to "${cleanNewName}" in ${updatedCount} entries.`);
+        }
+    }
+
+    function deleteShop(shopName) {
+        if (confirm(`Are you sure you want to DELETE "${shopName}" and ALL of its transaction history?`)) {
+            const initialLen = transactions.length;
+            transactions = transactions.filter(t => cleanStr(t.shop) !== shopName);
+            const deletedEntries = initialLen - transactions.length;
+            saveTransactionsToCloud();
+            alert(`"${shopName}" removed! (${deletedEntries} transaction entries deleted).`);
+        }
     }
 
     function transferSingleShop(shopName, selectElementId) {
@@ -1050,7 +1096,9 @@
             if(t.booker) bookerNamesSet.add(cleanStr(t.booker));
         });
 
-        bookerNamesSet.forEach(b => {
+        const sortedBookerNames = Array.from(bookerNamesSet).sort((a, b) => a.localeCompare(b));
+
+        sortedBookerNames.forEach(b => {
             fromSel.innerHTML += `<option value="${b}">${b}</option>`;
             toSel.innerHTML += `<option value="${b}">${b}</option>`;
         });
