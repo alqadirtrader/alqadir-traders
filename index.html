@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="ur" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Al Qadir Traders - POS & Store Ledger System</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Montserrat:wght@800;900&family=Noto+Nastaliq+Urdu:wght@700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background-color: #f4f6f9; margin: 0; padding: 15px; direction: rtl; text-align: right; }
+    .container { max-width: 1200px; margin: 0 auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+    
+    /* Header Layout */
+    .header-box { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #d1121d; padding-bottom: 15px; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
+    .brand-logo { font-family: 'Montserrat', sans-serif; font-weight: 900; color: #d1121d; font-size: 24px; text-transform: uppercase; line-height: 1; }
+    .brand-sub { font-size: 11px; color: #555; font-weight: 800; letter-spacing: 1px; }
+    .header-title { text-align: center; }
+    .header-title h1 { font-family: 'Noto Nastaliq Urdu', serif; font-size: 28px; margin: 0; color: #0d0d0d; }
+    .header-title h2 { font-family: 'Cinzel', serif; font-size: 22px; margin: 0; color: #0d0d0d; letter-spacing: 1px; }
+    .header-title div { color: #d1121d; font-weight: bold; font-size: 13px; letter-spacing: 1px; }
+    .user-info-bar { background: #e9ecef; padding: 6px 15px; border-radius: 20px; font-size: 13px; font-weight: bold; display: flex; align-items: center; gap: 8px; }
+    .badge-admin { background: #007bff; color: white; padding: 2px 8px; border-radius: 10px; font-size: 11px; }
+    .btn-logout { background: #d1121d; color: white; border: none; padding: 4px 10px; border-radius: 5px; cursor: pointer; font-size: 12px; font-weight: bold; }
+    
+    /* Status Ribbon */
+    .status-ribbon { background: #fff0f1; border: 1px solid #ffccd1; border-radius: 6px; padding: 8px 15px; display: flex; justify-content: space-between; font-size: 12px; font-weight: bold; color: #d1121d; margin-bottom: 20px; }
+
+    /* Navigation Bar */
+    .nav-tabs { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 25px; }
+    .nav-btn { padding: 10px 16px; border: none; border-radius: 6px; background-color: #e9ecef; font-weight: bold; cursor: pointer; color: #333; font-size: 13px; }
+    .nav-btn.active { background-color: #d1121d; color: white; }
+
+    /* Cards & Sections */
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 25px; }
+    .stat-card { background: #fff; border-right: 5px solid #d1121d; border-top: 1px solid #eee; border-bottom: 1px solid #eee; border-left: 1px solid #eee; padding: 15px; border-radius: 8px; }
+    .stat-card h4 { margin: 0 0 8px 0; color: #666; font-size: 12px; text-transform: uppercase; }
+    .stat-card div { font-size: 20px; font-weight: bold; color: #111; }
+    
+    .card-box { background: #f8f9fa; border: 1px solid #e0e0e0; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+    .form-group { margin-bottom: 15px; }
+    .form-group label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 13px; }
+    .form-group input, .form-group select { width: 100%; padding: 8px 12px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; }
+    
+    .btn-action { background: #d1121d; color: white; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold; cursor: pointer; }
+    .btn-green { background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold; cursor: pointer; }
+    .btn-blue { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold; cursor: pointer; }
+
+    /* Tables */
+    .table-container { overflow-x: auto; margin-top: 15px; }
+    table { width: 100%; border-collapse: collapse; background: white; font-size: 13px; }
+    th { background: #0d0d0d; color: white; padding: 10px; text-align: center; }
+    td { padding: 10px; border-bottom: 1px solid #eee; text-align: center; }
+    tr:nth-child(even) { background-color: #f9f9f9; }
+
+    @media (max-width: 768px) {
+      body { padding: 5px; }
+      .container { padding: 12px; }
+      .header-box { flex-direction: column; text-align: center; }
+      .nav-tabs { flex-direction: column; }
+      .nav-btn { width: 100%; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- Header -->
+    <div class="header-box">
+      <button class="btn-logout" onclick="alert('Logged Out')">لاگ آؤٹ (Logout)</button>
+      <div class="user-info-bar">
+        <span>👤 لاگ ان یوزر: ADMIN</span>
+        <span class="badge-admin">Admin</span>
+      </div>
+      <div class="header-title">
+        <h1>القادر ٹریڈرز</h1>
+        <h2>AL QADIR TRADERS</h2>
+        <div>AUTHORIZED DEALER</div>
+      </div>
+      <div style="text-align: left;">
+        <div class="brand-logo">Coca-Cola</div>
+        <div class="brand-sub">OFFICIAL PARTNER</div>
+      </div>
+    </div>
+
+    <!-- Status Ribbon -->
+    <div class="status-ribbon">
+      <span id="report-type-label">REPORT TYPE: Dashboard Summary</span>
+      <span id="updated-upto">DATA UPDATED UPTO: --</span>
+    </div>
+
+    <!-- Navigation Bar -->
+    <div class="nav-tabs">
+      <button class="nav-btn active" onclick="switchTab('dashboard')">📊 ڈیش بورڈ (Dashboard)</button>
+      <button class="nav-btn" onclick="switchTab('daily-entry')">📝 ڈیٹا انٹری (Daily Entry)</button>
+      <button class="nav-btn" onclick="switchTab('shop-ledger')">🔍 دکان لیجر (Shop Ledger)</button>
+      <button class="nav-btn" onclick="switchTab('booker-report')">👔 آرڈر بوکر رپورٹ (Booker Detail)</button>
+      <button class="nav-btn" onclick="switchTab('shops-list')">🏪 دکانوں کی فہرست (Shops)</button>
+      <button class="nav-btn" onclick="switchTab('backup')">💾 بیک اپ و بحالی (Backup)</button>
+    </div>
+
+    <!-- Dashboard Section -->
+    <div id="dashboard" class="tab-content active">
+      <div class="dashboard-grid">
+        <div class="stat-card" style="border-right-color: #28a745;">
+          <h4>TOTAL MARKET BALANCE</h4>
+          <div id="stat-total-balance">Rs. 0</div>
+        </div>
+        <div class="stat-card" style="border-right-color: #17a2b8;">
+          <h4>TOTAL SHOPS</h4>
+          <div id="stat-total-shops">0</div>
+        </div>
+        <div class="stat-card" style="border-right-color: #ffc107;">
+          <h4>TOTAL TRANSACTIONS</h4>
+          <div id="stat-total-txns">0</div>
+        </div>
+      </div>
+
+      <h3>Market Transactions Log</h3>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Date</th>
+              <th>Booker</th>
+              <th>Shop Name</th>
+              <th>Credit (ادھار)</th>
+              <th>Recovery (وصولی)</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="txn-table-body">
+            <tr><td colspan="7">کوئی ریکارڈ موجود نہیں ہے</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Daily Entry Section -->
+    <div id="daily-entry" class="tab-content">
+      <div class="card-box">
+        <h3>نئی ٹرانزیکشن کا اندراج (Daily Entry Form)</h3>
+        <form id="entry-form" onsubmit="saveTransaction(event)">
+          <div class="form-group">
+            <label>تاریخ (Date):</label>
+            <input type="date" id="entry-date" required>
+          </div>
+          <div class="form-group">
+            <label>آرڈر بوکر (Booker):</label>
+            <input type="text" id="entry-booker" placeholder="نام بوکر" required>
+          </div>
+          <div class="form-group">
+            <label>دکان کا نام (Shop Name):</label>
+            <input type="text" id="entry-shop" placeholder="نام دکان" required>
+          </div>
+          <div class="form-group">
+            <label>ادھار کی رقم / Credit (Rs.):</label>
+            <input type="number" id="entry-credit" value="0" min="0">
+          </div>
+          <div class="form-group">
+            <label>وصولی کی رقم / Recovery (Rs.):</label>
+            <input type="number" id="entry-recovery" value="0" min="0">
+          </div>
+          <button type="submit" class="btn-action">محفوظ کریں (Save Transaction)</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Shop Ledger Section -->
+    <div id="shop-ledger" class="tab-content">
+      <div class="card-box">
+        <h3>دکان کا لیجر تلاش کریں (Search Shop Ledger)</h3>
+        <div class="form-group">
+          <input type="text" id="search-shop-name" placeholder="دکان کا نام لکھیں..." onkeyup="renderShopLedger()">
+        </div>
+      </div>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Booker</th>
+              <th>Credit</th>
+              <th>Recovery</th>
+              <th>Balance</th>
+            </tr>
+          </thead>
+          <tbody id="ledger-table-body">
+            <tr><td colspan="5">براہ کرم دکان کا نام تلاش کریں</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Booker Report Section -->
+    <div id="booker-report" class="tab-content">
+      <h3>آرڈر بوکر خلاصہ (Booker Summary)</h3>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Booker Name</th>
+              <th>Total Credit</th>
+              <th>Total Recovery</th>
+              <th>Net Balance</th>
+            </tr>
+          </thead>
+          <tbody id="booker-summary-body">
+            <tr><td colspan="4">کوئی ڈیٹا نہیں ہے</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Shops List Section -->
+    <div id="shops-list" class="tab-content">
+      <h3>رجسٹرڈ دکانیں (Shops List)</h3>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Shop Name</th>
+              <th>Current Balance</th>
+            </tr>
+          </thead>
+          <tbody id="shops-list-body">
+            <tr><td colspan="3">کوئی دکان موجود نہیں ہے</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Backup Section -->
+    <div id="backup" class="tab-content">
+      <div class="card-box" style="border-right: 5px solid #007bff;">
+        <h3>1. بیک اپ تیار / کاپی کریں (Export Backup)</h3>
+        <p style="font-size: 12px; color: #555;">اگر فائل ڈاؤن لوڈ نہ ہو تو "ڈیٹا کوڈ کاپی کریں" پر کلک کر کے محفوظ کر لیں۔</p>
+        <button class="btn-blue" onclick="generateBackupCode()">🔄 1. بیک اپ کوڈ بنائیں</button>
+        <button class="btn-green" onclick="downloadBackupFile()">💾 2. فائل ڈاؤن لوڈ کریں</button>
+        <button class="btn-blue" style="background:#17a2b8;" onclick="copyBackupCode()">📋 3. ڈیٹا کوڈ کاپی کریں</button>
+        
+        <br><br>
+        <textarea id="backupTextarea" style="width:100%; height:100px; display:none; font-family:monospace; font-size:11px;" readonly></textarea>
+      </div>
+
+      <div class="card-box" style="border-right: 5px solid #28a745; background: #f4fff6;">
+        <h3>2. بیک اپ بحال کریں (Import / Restore Backup)</h3>
+        <p style="font-size: 12px; color: #555;">اپلوڈ کرنے کے لیے .json فائل چنیں یا کاپی شدہ کوڈ پیسٹ کریں۔</p>
+        
+        <input type="file" id="restoreFile" accept=".json">
+        <button class="btn-green" onclick="restoreFromFile()">📤 فائل سے بحال کریں</button>
+        
+        <hr style="margin: 15px 0;">
+        
+        <textarea id="restoreTextarea" style="width:100%; height:80px; font-family:monospace; font-size:11px;" placeholder="یا کاپی کیا ہوا بیک اپ کوڈ یہاں پیسٹ کریں..."></textarea>
+        <br><br>
+        <button class="btn-blue" style="background:#17a2b8;" onclick="restoreFromText()">📥 کاپی شدہ کوڈ سے بحال کریں</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // Data Structure
+    let transactions = JSON.parse(localStorage.getItem('alqadir_transactions')) || [];
+
+    // Initialize App
+    document.addEventListener("DOMContentLoaded", () => {
+      document.getElementById('entry-date').valueAsDate = new Date();
+      updateDashboard();
+    });
+
+    // Tab Switcher
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+      
+      document.getElementById(tabId).classList.add('active');
+      event.target.classList.add('active');
+
+      if(tabId === 'dashboard') updateDashboard();
+      if(tabId === 'booker-report') renderBookerReport();
+      if(tabId === 'shops-list') renderShopsList();
+    }
+
+    // Save Transaction
+    function saveTransaction(e) {
+      e.preventDefault();
+      const date = document.getElementById('entry-date').value;
+      const booker = document.getElementById('entry-booker').value.trim();
+      const shop = document.getElementById('entry-shop').value.trim();
+      const credit = parseFloat(document.getElementById('entry-credit').value) || 0;
+      const recovery = parseFloat(document.getElementById('entry-recovery').value) || 0;
+
+      const newTxn = { id: Date.now(), date, booker, shop, credit, recovery };
+      transactions.push(newTxn);
+      localStorage.setItem('alqadir_transactions', JSON.stringify(transactions));
+
+      alert("ٹرانزیکشن کامیابی سے محفوظ ہو گئی!");
+      document.getElementById('entry-credit').value = 0;
+      document.getElementById('entry-recovery').value = 0;
+      updateDashboard();
+    }
+
+    // Delete Transaction
+    function deleteTransaction(id) {
+      if(confirm("کیا آپ واقعی اس ٹرانزیکشن کو ڈیلیٹ کرنا چاہتے ہیں؟")) {
+        transactions = transactions.filter(t => t.id !== id);
+        localStorage.setItem('alqadir_transactions', JSON.stringify(transactions));
+        updateDashboard();
+      }
+    }
+
+    // Update Dashboard Data
+    function updateDashboard() {
+      const tbody = document.getElementById('txn-table-body');
+      tbody.innerHTML = '';
+
+      let totalBalance = 0;
+      let shopsSet = new Set();
+      let latestDate = '--';
+
+      if(transactions.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7">کوئی ریکارڈ موجود نہیں ہے</td></tr>';
+      } else {
+        transactions.sort((a,b) => new Date(b.date) - new Date(a.date));
+        latestDate = transactions[0].date;
+
+        transactions.forEach((t, i) => {
+          totalBalance += (t.credit - t.recovery);
+          shopsSet.add(t.shop.toLowerCase());
+
+          tbody.innerHTML += `
+            <tr>
+              <td>${i + 1}</td>
+              <td>${t.date}</td>
+              <td>${t.booker}</td>
+              <td>${t.shop}</td>
+              <td style="color:red; font-weight:bold;">${t.credit.toLocaleString()}</td>
+              <td style="color:green; font-weight:bold;">${t.recovery.toLocaleString()}</td>
+              <td><button onclick="deleteTransaction(${t.id})" style="background:red; color:white; border:none; border-radius:3px; cursor:pointer;">Delete</button></td>
+            </tr>
+          `;
+        });
+      }
+
+      document.getElementById('stat-total-balance').innerText = 'Rs. ' + totalBalance.toLocaleString();
+      document.getElementById('stat-total-shops').innerText = shopsSet.size;
+      document.getElementById('stat-total-txns').innerText = transactions.length;
+      document.getElementById('updated-upto').innerText = 'DATA UPDATED UPTO: ' + latestDate;
+    }
+
+    // Shop Ledger Search
+    function renderShopLedger() {
+      const query = document.getElementById('search-shop-name').value.toLowerCase().trim();
+      const tbody = document.getElementById('ledger-table-body');
+      tbody.innerHTML = '';
+
+      if(!query) {
+        tbody.innerHTML = '<tr><td colspan="5">براہ کرم دکان کا نام تلاش کریں</td></tr>';
+        return;
+      }
+
+      const filtered = transactions.filter(t => t.shop.toLowerCase().includes(query));
+      let runningBalance = 0;
+
+      if(filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5">اس نام کی کوئی دکان نہیں ملی</td></tr>';
+        return;
+      }
+
+      filtered.sort((a,b) => new Date(a.date) - new Date(b.date)).forEach(t => {
+        runningBalance += (t.credit - t.recovery);
+        tbody.innerHTML += `
+          <tr>
+            <td>${t.date}</td>
+            <td>${t.booker}</td>
+            <td>Rs. ${t.credit.toLocaleString()}</td>
+            <td>Rs. ${t.recovery.toLocaleString()}</td>
+            <td style="font-weight:bold;">Rs. ${runningBalance.toLocaleString()}</td>
+          </tr>
+        `;
+      });
+    }
+
+    // Booker Report
+    function renderBookerReport() {
+      const tbody = document.getElementById('booker-summary-body');
+      tbody.innerHTML = '';
+
+      let bookers = {};
+      transactions.forEach(t => {
+        const b = t.booker || 'Unknown';
+        if(!bookers[b]) bookers[b] = { credit: 0, recovery: 0 };
+        bookers[b].credit += t.credit;
+        bookers[b].recovery += t.recovery;
+      });
+
+      Object.keys(bookers).forEach(b => {
+        const net = bookers[b].credit - bookers[b].recovery;
+        tbody.innerHTML += `
+          <tr>
+            <td><b>${b}</b></td>
+            <td style="color:red;">Rs. ${bookers[b].credit.toLocaleString()}</td>
+            <td style="color:green;">Rs. ${bookers[b].recovery.toLocaleString()}</td>
+            <td style="font-weight:bold;">Rs. ${net.toLocaleString()}</td>
+          </tr>
+        `;
+      });
+    }
+
+    // Shops List
+    function renderShopsList() {
+      const tbody = document.getElementById('shops-list-body');
+      tbody.innerHTML = '';
+
+      let shops = {};
+      transactions.forEach(t => {
+        const s = t.shop || 'Unknown';
+        if(!shops[s]) shops[s] = 0;
+        shops[s] += (t.credit - t.recovery);
+      });
+
+      let idx = 1;
+      Object.keys(shops).forEach(s => {
+        tbody.innerHTML += `
+          <tr>
+            <td>${idx++}</td>
+            <td><b>${s}</b></td>
+            <td style="font-weight:bold;">Rs. ${shops[s].toLocaleString()}</td>
+          </tr>
+        `;
+      });
+    }
+
+    // Backup & Restore Logic
+    function generateBackupCode() {
+      const data = JSON.stringify(localStorage);
+      const txt = document.getElementById('backupTextarea');
+      txt.value = data;
+      txt.style.display = 'block';
+      alert("بیک اپ کوڈ تیار ہے!");
+    }
+
+    function copyBackupCode() {
+      const txt = document.getElementById('backupTextarea');
+      if(!txt.value) generateBackupCode();
+      txt.select();
+      navigator.clipboard.writeText(txt.value);
+      alert("بیک اپ کوڈ کاپی ہو گیا ہے!");
+    }
+
+    function downloadBackupFile() {
+      const data = JSON.stringify(localStorage);
+      const blob = new Blob([data], {type: 'application/json'});
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'alqadir_backup_' + new Date().toISOString().slice(0,10) + '.json';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+
+    function restoreFromFile() {
+      const fileInput = document.getElementById('restoreFile');
+      if(!fileInput.files.length) { alert("فائل منتخب کریں!"); return; }
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const parsed = JSON.parse(e.target.result);
+          Object.keys(parsed).forEach(k => localStorage.setItem(k, parsed[k]));
+          alert("ڈیٹا کامیابی سے بحال ہو گیا!");
+          location.reload();
+        } catch(err) { alert("فائل درست نہیں ہے!"); }
+      };
+      reader.readAsText(fileInput.files[0]);
+    }
+
+    function restoreFromText() {
+      const text = document.getElementById('restoreTextarea').value.trim();
+      if(!text) { alert("بیک اپ کوڈ پیسٹ کریں!"); return; }
+      try {
+        const parsed = JSON.parse(text);
+        Object.keys(parsed).forEach(k => localStorage.setItem(k, parsed[k]));
+        alert("ڈیٹا کامیابی سے بحال ہو گیا!");
+        location.reload();
+      } catch(err) { alert("کوڈ درست نہیں ہے!"); }
+    }
+  </script>
+</body>
+</html>
