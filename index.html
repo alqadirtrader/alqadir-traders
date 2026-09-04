@@ -473,9 +473,15 @@
         { username: "inaam", password: "123", role: "booker", bookerName: "INAAM" }
     ];
 
+    // Default Transactions Data (Agar LocalStorage khali ho to ye load hoga)
+    const DEFAULT_TRANSACTIONS = [
+        { date: "2026-08-01", booker: "ARSALAN", shop: "AL MADINA STORE", ref: "INV-101", credit: 5000, recovery: 2000 },
+        { date: "2026-08-02", booker: "INAAM", shop: "KHAN TRADERS", ref: "INV-102", credit: 8000, recovery: 0 }
+    ];
+
     let USERS_DATABASE = JSON.parse(localStorage.getItem('pos_users_db')) || DEFAULT_USERS;
     let currentUser = JSON.parse(sessionStorage.getItem('pos_current_user')) || null;
-    let transactions = JSON.parse(localStorage.getItem('pos_transactions')) || [];
+    let transactions = JSON.parse(localStorage.getItem('pos_transactions')) || DEFAULT_TRANSACTIONS;
 
     // Filter invalid / blank shop entries automatically
     transactions = transactions.filter(t => t && t.shop && t.shop.trim() !== '' && t.shop.toUpperCase() !== 'UNDEFINED' && t.shop.toUpperCase() !== 'UNKNOWN');
