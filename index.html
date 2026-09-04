@@ -260,6 +260,21 @@
             <button type="button" class="btn-add" id="saveBtn" onclick="addTransaction()">Save Entry</button>
         </form>
 
+        <!-- BULK ENTRY VIA CSV SECTION -->
+        <div class="backup-box no-print" style="border-color: #1D6F42; background: #f0fff4; margin-bottom: 20px;">
+            <div>
+                <strong style="color: #1D6F42; font-size: 15px;">📂 Bulk Entry Upload (via CSV)</strong>
+                <p style="margin: 3px 0 0 0; font-size: 12px; color: #555;">
+                    Select your CSV file to import multiple daily entries at once.<br>
+                    <small style="color: #888;">CSV Header format: <b>date,booker,shop,ref,credit,recovery</b></small>
+                </p>
+            </div>
+            <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                <input type="file" id="csvFileInput" accept=".csv" style="display: none;" onchange="uploadBulkCSV(event)">
+                <button class="btn-excel" style="background: #1D6F42; padding: 10px 18px; font-size: 14px;" onclick="document.getElementById('csvFileInput').click()">📁 Select CSV File & Upload</button>
+            </div>
+        </div>
+
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 10px;">
             <h3>Transactions Record</h3>
             <div class="no-print" style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
@@ -686,6 +701,55 @@
         document.getElementById('refNo').value = '';
         document.getElementById('creditVal').value = '0';
         document.getElementById('recoveryVal').value = '0';
+    }
+
+    // BULK CSV UPLOAD FUNCTION
+    function uploadBulkCSV(event) {
+        const file = event.target.files[0];
+        if(!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const text = e.target.result;
+                const lines = text.split(/\r\n|\n/);
+                let addedCount = 0;
+
+                for(let i = 0; i < lines.length; i++) {
+                    const line = lines[i].trim();
+                    if(!line) continue;
+
+                    // Skip Header line if present
+                    if(i === 0 && (line.toLowerCase().includes('date') || line.toLowerCase().includes('shop'))) continue;
+
+                    const cols = line.split(',');
+                    if(cols.length >= 3) {
+                        const date = cols[0] ? cols[0].trim() : new Date().toISOString().split('T')[0];
+                        const booker = cleanStr(cols[1]);
+                        const shop = cleanStr(cols[2]);
+                        const ref = cols[3] ? cols[3].trim() : '-';
+                        const credit = parseFloat(cols[4]) || 0;
+                        const recovery = parseFloat(cols[5]) || 0;
+
+                        if(date && booker && shop && shop !== 'UNDEFINED' && shop !== 'UNKNOWN') {
+                            transactions.push({ date, booker, shop, ref: ref || '-', credit, recovery });
+                            addedCount++;
+                        }
+                    }
+                }
+
+                if(addedCount > 0) {
+                    saveTransactionsToCloud();
+                    alert(`Success! ${addedCount} CSV entries uploaded successfully.`);
+                } else {
+                    alert('No valid entries found in the CSV file!');
+                }
+            } catch(err) {
+                alert('Error reading CSV file. Please make sure format is correct.');
+            }
+            event.target.value = ''; // Reset file input
+        };
+        reader.readAsText(file);
     }
 
     function renderTransactions() {
