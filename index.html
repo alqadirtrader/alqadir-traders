@@ -8,6 +8,14 @@
   <style>
     * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
     body { background-color: #f4f6f9; margin: 0; padding: 15px; direction: rtl; text-align: right; }
+    
+    /* Login Overlay */
+    #login-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); display:flex; justify-content:center; align-items:center; z-index:9999; }
+    .login-card { background:white; padding:30px; border-radius:10px; width:100%; max-width:380px; text-align:center; box-shadow:0 10px 25px rgba(0,0,0,0.3); }
+    .login-card h2 { margin-top:0; color:#d1121d; font-family:'Noto Nastaliq Urdu', serif; }
+    .login-card input { width:100%; padding:10px; margin:10px 0; border:1px solid #ccc; border-radius:5px; text-align:center; font-size:16px; }
+    .login-card button { width:100%; padding:10px; background:#d1121d; color:white; border:none; border-radius:5px; font-weight:bold; cursor:pointer; font-size:15px; }
+
     .container { max-width: 1200px; margin: 0 auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
     
     /* Header Layout */
@@ -20,7 +28,7 @@
     .header-title div { color: #d1121d; font-weight: bold; font-size: 13px; letter-spacing: 1px; }
     .user-info-bar { background: #e9ecef; padding: 6px 15px; border-radius: 20px; font-size: 13px; font-weight: bold; display: flex; align-items: center; gap: 8px; }
     .badge-admin { background: #007bff; color: white; padding: 2px 8px; border-radius: 10px; font-size: 11px; }
-    .btn-logout { background: #d1121d; color: white; border: none; padding: 4px 10px; border-radius: 5px; cursor: pointer; font-size: 12px; font-weight: bold; }
+    .btn-logout { background: #d1121d; color: white; border: none; padding: 6px 12px; border-radius: 5px; cursor: pointer; font-size: 12px; font-weight: bold; }
     
     /* Status Ribbon */
     .status-ribbon { background: #fff0f1; border: 1px solid #ffccd1; border-radius: 6px; padding: 8px 15px; display: flex; justify-content: space-between; font-size: 12px; font-weight: bold; color: #d1121d; margin-bottom: 20px; }
@@ -65,10 +73,21 @@
 </head>
 <body>
 
+  <!-- Login Overlay -->
+  <div id="login-overlay">
+    <div class="login-card">
+      <h2>القادر ٹریڈرز</h2>
+      <p style="font-size:13px; color:#666;">سسٹم میں داخل ہونے کے لیے پاس ورڈ درج کریں</p>
+      <input type="password" id="login-pass" placeholder="پاس ورڈ لکھیں">
+      <button onclick="checkLogin()">لاگ ان کریں (Login)</button>
+      <p id="login-err" style="color:red; font-size:12px; display:none; margin-top:10px;">غلط پاس ورڈ!</p>
+    </div>
+  </div>
+
   <div class="container">
     <!-- Header -->
     <div class="header-box">
-      <button class="btn-logout" onclick="alert('Logged Out')">لاگ آؤٹ (Logout)</button>
+      <button class="btn-logout" onclick="doLogout()">لاگ آؤٹ (Logout)</button>
       <div class="user-info-bar">
         <span>👤 لاگ ان یوزر: ADMIN</span>
         <span class="badge-admin">Admin</span>
@@ -92,12 +111,12 @@
 
     <!-- Navigation Bar -->
     <div class="nav-tabs">
-      <button class="nav-btn active" onclick="switchTab('dashboard')">📊 ڈیش بورڈ (Dashboard)</button>
-      <button class="nav-btn" onclick="switchTab('daily-entry')">📝 ڈیٹا انٹری (Daily Entry)</button>
-      <button class="nav-btn" onclick="switchTab('shop-ledger')">🔍 دکان لیجر (Shop Ledger)</button>
-      <button class="nav-btn" onclick="switchTab('booker-report')">👔 آرڈر بوکر رپورٹ (Booker Detail)</button>
-      <button class="nav-btn" onclick="switchTab('shops-list')">🏪 دکانوں کی فہرست (Shops)</button>
-      <button class="nav-btn" onclick="switchTab('backup')">💾 بیک اپ و بحالی (Backup)</button>
+      <button class="nav-btn active" onclick="switchTab(event, 'dashboard')">📊 ڈیش بورڈ (Dashboard)</button>
+      <button class="nav-btn" onclick="switchTab(event, 'daily-entry')">📝 ڈیٹا انٹری (Daily Entry)</button>
+      <button class="nav-btn" onclick="switchTab(event, 'shop-ledger')">🔍 دکان لیجر (Shop Ledger)</button>
+      <button class="nav-btn" onclick="switchTab(event, 'booker-report')">👔 آرڈر بوکر رپورٹ (Booker Detail)</button>
+      <button class="nav-btn" onclick="switchTab(event, 'shops-list')">🏪 دکانوں کی فہرست (Shops)</button>
+      <button class="nav-btn" onclick="switchTab(event, 'backup')">💾 بیک اپ و بحالی (Backup)</button>
     </div>
 
     <!-- Dashboard Section -->
@@ -237,25 +256,15 @@
     <div id="backup" class="tab-content">
       <div class="card-box" style="border-right: 5px solid #007bff;">
         <h3>1. بیک اپ تیار / کاپی کریں (Export Backup)</h3>
-        <p style="font-size: 12px; color: #555;">اگر فائل ڈاؤن لوڈ نہ ہو تو "ڈیٹا کوڈ کاپی کریں" پر کلک کر کے محفوظ کر لیں۔</p>
         <button class="btn-blue" onclick="generateBackupCode()">🔄 1. بیک اپ کوڈ بنائیں</button>
-        <button class="btn-green" onclick="downloadBackupFile()">💾 2. فائل ڈاؤن لوڈ کریں</button>
-        <button class="btn-blue" style="background:#17a2b8;" onclick="copyBackupCode()">📋 3. ڈیٹا کوڈ کاپی کریں</button>
-        
+        <button class="btn-blue" style="background:#17a2b8;" onclick="copyBackupCode()">📋 2. ڈیٹا کوڈ کاپی کریں</button>
         <br><br>
         <textarea id="backupTextarea" style="width:100%; height:100px; display:none; font-family:monospace; font-size:11px;" readonly></textarea>
       </div>
 
       <div class="card-box" style="border-right: 5px solid #28a745; background: #f4fff6;">
-        <h3>2. بیک اپ بحال کریں (Import / Restore Backup)</h3>
-        <p style="font-size: 12px; color: #555;">اپلوڈ کرنے کے لیے .json فائل چنیں یا کاپی شدہ کوڈ پیسٹ کریں۔</p>
-        
-        <input type="file" id="restoreFile" accept=".json">
-        <button class="btn-green" onclick="restoreFromFile()">📤 فائل سے بحال کریں</button>
-        
-        <hr style="margin: 15px 0;">
-        
-        <textarea id="restoreTextarea" style="width:100%; height:80px; font-family:monospace; font-size:11px;" placeholder="یا کاپی کیا ہوا بیک اپ کوڈ یہاں پیسٹ کریں..."></textarea>
+        <h3>2. بیک اپ بحال کریں (Restore Backup)</h3>
+        <textarea id="restoreTextarea" style="width:100%; height:80px; font-family:monospace; font-size:11px;" placeholder="کاپی کیا ہوا بیک اپ کوڈ یہاں پیسٹ کریں..."></textarea>
         <br><br>
         <button class="btn-blue" style="background:#17a2b8;" onclick="restoreFromText()">📥 کاپی شدہ کوڈ سے بحال کریں</button>
       </div>
@@ -264,29 +273,48 @@
   </div>
 
   <script>
+    // System Password (ڈیفالٹ پاس ورڈ admin ہے)
+    const APP_PASS = "admin";
+
+    function checkLogin() {
+      const p = document.getElementById('login-pass').value;
+      if(p === APP_PASS) {
+        document.getElementById('login-overlay').style.display = 'none';
+        sessionStorage.setItem('isLoggedIn', 'true');
+      } else {
+        document.getElementById('login-err').style.display = 'block';
+      }
+    }
+
+    function doLogout() {
+      sessionStorage.removeItem('isLoggedIn');
+      document.getElementById('login-overlay').style.display = 'flex';
+      document.getElementById('login-pass').value = '';
+    }
+
     // Data Structure
     let transactions = JSON.parse(localStorage.getItem('alqadir_transactions')) || [];
 
-    // Initialize App
     document.addEventListener("DOMContentLoaded", () => {
+      if(sessionStorage.getItem('isLoggedIn') === 'true') {
+        document.getElementById('login-overlay').style.display = 'none';
+      }
       document.getElementById('entry-date').valueAsDate = new Date();
       updateDashboard();
     });
 
-    // Tab Switcher
-    function switchTab(tabId) {
+    function switchTab(e, tabId) {
       document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
       document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
       
       document.getElementById(tabId).classList.add('active');
-      event.target.classList.add('active');
+      e.target.classList.add('active');
 
       if(tabId === 'dashboard') updateDashboard();
       if(tabId === 'booker-report') renderBookerReport();
       if(tabId === 'shops-list') renderShopsList();
     }
 
-    // Save Transaction
     function saveTransaction(e) {
       e.preventDefault();
       const date = document.getElementById('entry-date').value;
@@ -305,7 +333,6 @@
       updateDashboard();
     }
 
-    // Delete Transaction
     function deleteTransaction(id) {
       if(confirm("کیا آپ واقعی اس ٹرانزیکشن کو ڈیلیٹ کرنا چاہتے ہیں؟")) {
         transactions = transactions.filter(t => t.id !== id);
@@ -314,7 +341,6 @@
       }
     }
 
-    // Update Dashboard Data
     function updateDashboard() {
       const tbody = document.getElementById('txn-table-body');
       tbody.innerHTML = '';
@@ -353,7 +379,6 @@
       document.getElementById('updated-upto').innerText = 'DATA UPDATED UPTO: ' + latestDate;
     }
 
-    // Shop Ledger Search
     function renderShopLedger() {
       const query = document.getElementById('search-shop-name').value.toLowerCase().trim();
       const tbody = document.getElementById('ledger-table-body');
@@ -372,7 +397,7 @@
         return;
       }
 
-      filtered.sort((a,b) => new Date(a.date) - new Date(b.date)).forEach(t => {
+      filtered.sort((a,b) => new Date(a.date) - new Date(a.date)).forEach(t => {
         runningBalance += (t.credit - t.recovery);
         tbody.innerHTML += `
           <tr>
@@ -386,7 +411,6 @@
       });
     }
 
-    // Booker Report
     function renderBookerReport() {
       const tbody = document.getElementById('booker-summary-body');
       tbody.innerHTML = '';
@@ -412,7 +436,6 @@
       });
     }
 
-    // Shops List
     function renderShopsList() {
       const tbody = document.getElementById('shops-list-body');
       tbody.innerHTML = '';
@@ -436,7 +459,6 @@
       });
     }
 
-    // Backup & Restore Logic
     function generateBackupCode() {
       const data = JSON.stringify(localStorage);
       const txt = document.getElementById('backupTextarea');
@@ -451,32 +473,6 @@
       txt.select();
       navigator.clipboard.writeText(txt.value);
       alert("بیک اپ کوڈ کاپی ہو گیا ہے!");
-    }
-
-    function downloadBackupFile() {
-      const data = JSON.stringify(localStorage);
-      const blob = new Blob([data], {type: 'application/json'});
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = 'alqadir_backup_' + new Date().toISOString().slice(0,10) + '.json';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-    }
-
-    function restoreFromFile() {
-      const fileInput = document.getElementById('restoreFile');
-      if(!fileInput.files.length) { alert("فائل منتخب کریں!"); return; }
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        try {
-          const parsed = JSON.parse(e.target.result);
-          Object.keys(parsed).forEach(k => localStorage.setItem(k, parsed[k]));
-          alert("ڈیٹا کامیابی سے بحال ہو گیا!");
-          location.reload();
-        } catch(err) { alert("فائل درست نہیں ہے!"); }
-      };
-      reader.readAsText(fileInput.files[0]);
     }
 
     function restoreFromText() {
