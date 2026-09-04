@@ -7,16 +7,16 @@
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Montserrat:wght@800;900&family=Noto+Nastaliq+Urdu:wght@700&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background-color: #f4f6f9; margin: 0; padding: 20px; direction: ltr; text-align: left; }
-        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        body { background-color: #f4f6f9; margin: 0; padding: 15px; direction: ltr; text-align: left; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         
         #loginOverlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.85); display: flex; justify-content: center; align-items: center;
-            z-index: 9999;
+            z-index: 9999; padding: 15px;
         }
         .login-card {
-            background: white; padding: 35px; border-radius: 12px; width: 100%; max-width: 400px;
+            background: white; padding: 30px; border-radius: 12px; width: 100%; max-width: 400px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.3); text-align: center; border-top: 5px solid #d1121d;
         }
         .login-card h2 { margin-top: 0; color: #0d0d0d; font-size: 22px; }
@@ -31,29 +31,30 @@
         
         .btn-login { width: 100%; background: #d1121d; color: white; border: none; padding: 12px; font-size: 16px; font-weight: bold; border-radius: 6px; cursor: pointer; margin-top: 10px; }
         .btn-login:hover { background: #b00e17; }
-        .user-info-bar { display: flex; justify-content: space-between; align-items: center; background: #eef2f5; padding: 10px 15px; border-radius: 6px; margin-bottom: 15px; }
+        .user-info-bar { display: flex; justify-content: space-between; align-items: center; background: #eef2f5; padding: 10px 15px; border-radius: 6px; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
         
         .brand-header-custom {
             display: flex; justify-content: space-between; align-items: center;
-            padding-bottom: 12px; border-bottom: 4px solid #d1121d; margin-bottom: 10px; position: relative;
+            padding-bottom: 12px; border-bottom: 4px solid #d1121d; margin-bottom: 10px; position: relative; flex-wrap: wrap; gap: 10px;
         }
         .brand-left { text-align: left; direction: ltr; }
-        .brand-title-en { font-family: 'Montserrat', sans-serif; font-size: 28px; font-weight: 900; color: #0d0d0d; letter-spacing: 0.5px; margin: 0; line-height: 1.1; text-transform: uppercase; }
-        .brand-sub-en { font-family: 'Montserrat', sans-serif; font-size: 13px; font-weight: 800; color: #d1121d; letter-spacing: 1px; margin-top: 4px; text-transform: uppercase; }
+        .brand-title-en { font-family: 'Montserrat', sans-serif; font-size: 24px; font-weight: 900; color: #0d0d0d; letter-spacing: 0.5px; margin: 0; line-height: 1.1; text-transform: uppercase; }
+        .brand-sub-en { font-family: 'Montserrat', sans-serif; font-size: 12px; font-weight: 800; color: #d1121d; letter-spacing: 1px; margin-top: 4px; text-transform: uppercase; }
         .brand-center { text-align: center; flex-grow: 1; }
-        .brand-title-ur { font-family: 'Noto Nastaliq Urdu', serif; font-size: 28px; color: #0d0d0d; margin: 0; line-height: 1.6; }
-        .brand-right { text-align: right; direction: ltr; }
-        .coca-cola-title { font-family: 'Georgia', serif; font-style: italic; font-size: 34px; font-weight: bold; color: #d1121d; margin: 0; line-height: 0.9; letter-spacing: -1px; }
-        .coca-cola-sub { font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 800; color: #555; letter-spacing: 1.5px; margin-top: 5px; text-transform: uppercase; text-align: center; }
+        .brand-title-ur { font-family: 'Noto Nastaliq Urdu', serif; font-size: 24px; color: #0d0d0d; margin: 0; line-height: 1.6; }
+        .brand-right { text-align: right; direction: ltr; display: flex; flex-direction: column; align-items: flex-end; }
+        
+        .coca-cola-logo-svg { width: 130px; height: auto; }
+        .coca-cola-sub { font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 800; color: #555; letter-spacing: 1.5px; margin-top: 3px; text-transform: uppercase; text-align: right; }
         
         .print-date-bar {
             display: flex; justify-content: space-between; font-size: 12px; font-weight: bold;
             color: #d1121d; margin-bottom: 15px; background: #fff0f0; padding: 8px 12px;
-            border-radius: 4px; border: 1px solid #f5c6cb; direction: ltr;
+            border-radius: 4px; border: 1px solid #f5c6cb; direction: ltr; flex-wrap: wrap; gap: 5px;
         }
 
         .tabs { display: flex; gap: 8px; margin-bottom: 20px; border-bottom: 2px solid #ddd; flex-wrap: wrap; }
-        .tab-btn { padding: 12px 20px; background: #e9ecef; border: none; font-weight: bold; cursor: pointer; border-radius: 5px 5px 0 0; font-size: 14px; }
+        .tab-btn { padding: 10px 16px; background: #e9ecef; border: none; font-weight: bold; cursor: pointer; border-radius: 5px 5px 0 0; font-size: 13px; flex-grow: 1; text-align: center; }
         .tab-btn.active { background: #d1121d; color: white; }
         
         .tab-content { display: none; }
@@ -63,25 +64,26 @@
         .form-group { display: flex; flex-direction: column; gap: 5px; text-align: left; }
         label { font-weight: bold; color: #333; font-size: 14px; }
         .required-star { color: red; font-weight: bold; margin-left: 3px; }
-        input, select { padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; text-align: left; direction: ltr; }
+        input, select { padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; text-align: left; direction: ltr; width: 100%; }
         
         button.btn-add { background: #28a745; color: white; border: none; padding: 12px 20px; font-weight: bold; border-radius: 5px; cursor: pointer; grid-column: 1 / -1; font-size: 16px; }
         button.btn-add:hover { background: #218838; }
         
-        .btn-excel { background: #1D6F42; color: white; border: none; padding: 10px 18px; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 14px; }
-        .btn-backup { background: #6f42c1; color: white; border: none; padding: 10px 18px; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 14px; }
-        .btn-restore { background: #fd7e14; color: white; border: none; padding: 10px 18px; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 14px; }
+        .btn-excel { background: #1D6F42; color: white; border: none; padding: 9px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 13px; }
+        .btn-backup { background: #6f42c1; color: white; border: none; padding: 9px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 13px; }
+        .btn-restore { background: #fd7e14; color: white; border: none; padding: 9px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 13px; }
         .btn-edit { background: #ffc107; color: #000; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 12px; margin-right: 5px; font-weight: bold; }
         .btn-transfer { background: #17a2b8; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 12px; margin-right: 5px; font-weight: bold; }
         .btn-delete { background: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 12px; }
         .btn-logout { background: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; }
 
         .backup-box { background: #f3f0ff; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px dashed #6f42c1; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
-        .filter-box { background: #eef2f5; padding: 12px; border-radius: 8px; margin-bottom: 15px; display: flex; gap: 15px; align-items: center; flex-wrap: wrap; }
+        .filter-box { background: #eef2f5; padding: 12px; border-radius: 8px; margin-bottom: 15px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
         .checkbox-label { display: flex; align-items: center; gap: 8px; font-weight: bold; cursor: pointer; user-select: none; color: #c0392b; font-size: 13px; }
 
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; direction: ltr; }
-        th, td { border: 1px solid #dee2e6; padding: 10px; font-size: 13px; }
+        .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 10px; }
+        table { width: 100%; border-collapse: collapse; min-width: 600px; direction: ltr; }
+        th, td { border: 1px solid #dee2e6; padding: 8px 10px; font-size: 13px; }
         th { background-color: #0d0d0d; color: white; text-align: center; }
         
         .text-left { text-align: left !important; }
@@ -89,31 +91,40 @@
         .text-right { text-align: right !important; }
         tr:nth-child(even) { background-color: #f8f9fa; }
         
-        .summary-card { display: flex; gap: 15px; margin-bottom: 15px; flex-wrap: wrap; direction: ltr; }
-        .card { flex: 1; min-width: 180px; background: #f8f9fa; padding: 10px 15px; border-radius: 6px; border-left: 4px solid #d1121d; text-align: left; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-        .card h3 { margin: 0; color: #555; font-size: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; }
-        .card p { margin: 4px 0 0 0; font-size: 16px; font-weight: bold; color: #0d0d0d; }
+        .summary-card { display: flex; gap: 12px; margin-bottom: 15px; flex-wrap: wrap; direction: ltr; }
+        .card { flex: 1; min-width: 160px; background: #f8f9fa; padding: 10px 15px; border-radius: 6px; border-left: 4px solid #d1121d; text-align: left; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .card h3 { margin: 0; color: #555; font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; }
+        .card p { margin: 4px 0 0 0; font-size: 15px; font-weight: bold; color: #0d0d0d; }
 
         .bal-positive { color: #d1121d; font-weight: bold; }
         .bal-negative { color: #28a745; font-weight: bold; }
         .bal-zero { color: #555; font-weight: bold; }
 
-        /* A4 Portrait Print Page Setup (Margin: 0.25in) */
-        @page {
-            size: A4 portrait;
-            margin: 0.25in;
+        @media (max-width: 768px) {
+            body { padding: 8px; }
+            .container { padding: 12px; }
+            .brand-header-custom { flex-direction: column; text-align: center; align-items: center; }
+            .brand-left, .brand-right, .brand-center { text-align: center; }
+            .brand-right { align-items: center; margin-top: 5px; }
+            .brand-title-en { font-size: 20px; }
+            .brand-title-ur { font-size: 22px; }
+            .coca-cola-logo-svg { width: 110px; }
+            .tabs { gap: 4px; }
+            .tab-btn { font-size: 12px; padding: 8px 10px; }
         }
 
+        @page { size: A4 portrait; margin: 0.25in; }
         @media print {
             .tabs, form, button, .no-print, .btn-edit, .btn-delete, .btn-transfer, .filter-box, .backup-box, .user-info-bar { display: none !important; }
             body { background: white; padding: 0; margin: 0; direction: ltr !important; text-align: left !important; font-size: 12pt; }
             .container { box-shadow: none; padding: 0; width: 100%; max-width: 100%; border: none; }
             th { background-color: #0d0d0d !important; color: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            .brand-header-custom { border-bottom: 3px solid #d1121d !important; -webkit-print-color-adjust: exact; margin-bottom: 5px !important; }
+            .brand-header-custom { border-bottom: 3px solid #d1121d !important; -webkit-print-color-adjust: exact; margin-bottom: 5px !important; flex-direction: row !inner; justify-content: space-between; }
             .print-date-bar { border: none !important; background: transparent !important; margin-bottom: 10px !important; padding: 0 !important; color: #000 !important; }
             .card { padding: 6px 12px !important; border-left: 3px solid #d1121d !important; background: #fff !important; border: 1px solid #ddd; }
-            table { margin-top: 5px !important; direction: ltr !important; width: 100% !important; border-collapse: collapse !important; }
+            table { margin-top: 5px !important; direction: ltr !important; width: 100% !important; border-collapse: collapse !important; min-width: 100% !important; }
             th, td { padding: 6px 8px !important; font-size: 10pt !important; border: 1px solid #999 !important; }
+            .table-responsive { overflow: visible !important; }
         }
     </style>
 </head>
@@ -154,7 +165,13 @@
             <div class="brand-title-ur">القادر ٹریڈرز</div>
         </div>
         <div class="brand-right">
-            <div class="coca-cola-title">Coca-Cola</div>
+            <!-- Official Coca-Cola Script Vector Logo -->
+            <svg class="coca-cola-logo-svg" viewBox="0 0 286.02 93.38" fill="#d1121d">
+                <path d="M141.52,56.12c-4.32,15.65-15.06,23.33-28.71,23.33-14.89,0-23.77-10.42-23.77-27.17,0-22.38,15.75-38.32,33.56-38.32,12.87,0,20.89,6.72,21.57,17.43h18.32C161.42,12,146.18,0,123.06,0,94.29,0,69.29,22.89,69.29,56.12c0,28,18.83,43.43,44,43.43,21,0,38.35-12.72,43.83-38.16C157.12,61.39,141.52,56.12,141.52,56.12ZM21.32,56.12C17,71.77,6.26,79.45-7.39,79.45c-14.89,0-23.77-10.42-23.77-27.17,0-22.38,15.75-38.32,33.56-38.32,12.87,0,20.89,6.72,21.57,17.43H2.29C1.22,12-14,0-37.14,0c-28.77,0-53.77,22.89-53.77,56.12,0,28,18.83,43.43,44,43.43,21,0,38.35-12.72,43.83-38.16C-3.08,61.39-18.68,56.12-18.68,56.12Z" transform="translate(90.91)"/>
+                <path d="M228.62,28.68c-12,0-21.72,6.58-25.13,17.09h-.34l.85-15.55h-16.71l-10,61.33h17.57l4.77-29.28c2.21-13.65,10.23-20.13,20.29-20.13a11.13,11.13,0,0,1,3.41.43l3.58-16.71A24.58,24.58,0,0,0,228.62,28.68Z"/>
+                <path d="M167.36,30.22h-17.57l-10,61.33h17.57Z"/>
+                <circle cx="162.24" cy="11.43" r="11.43"/>
+            </svg>
             <div class="coca-cola-sub">OFFICIAL PARTNER</div>
         </div>
     </div>
@@ -191,24 +208,29 @@
             </div>
         </div>
 
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <h3 style="font-size: 15px; margin: 10px 0;">Booker Summary</h3>
-            <button class="btn-excel no-print" onclick="exportTableToExcel('dashBookerTable', 'Booker_Summary')">Download Excel 📊</button>
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 10px;">
+            <h3 style="font-size: 15px; margin: 0;">Booker Summary</h3>
+            <div class="no-print" style="display: flex; gap: 8px;">
+                <button class="btn-add" style="grid-column: auto; background: #6c757d; padding: 9px 15px; font-size: 13px;" onclick="window.print()">Print / PDF 🖨️</button>
+                <button class="btn-excel" onclick="exportTableToExcel('dashBookerTable', 'Booker_Summary')">Download Excel 📊</button>
+            </div>
         </div>
-        <table>
-            <thead>
-                <tr>
-                    <th style="width: 50px;">S.No</th>
-                    <th class="text-left">Booker Name</th>
-                    <th>Total Shops</th>
-                    <th>Credit Shops</th>
-                    <th class="text-right">Total Credit</th>
-                    <th class="text-right">Total Recovery</th>
-                    <th class="text-right">Net Balance</th>
-                </tr>
-            </thead>
-            <tbody id="dashBookerTable"></tbody>
-        </table>
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 50px;">S.No</th>
+                        <th class="text-left">Booker Name</th>
+                        <th>Total Shops</th>
+                        <th>Credit Shops</th>
+                        <th class="text-right">Total Credit</th>
+                        <th class="text-right">Total Recovery</th>
+                        <th class="text-right">Net Balance</th>
+                    </tr>
+                </thead>
+                <tbody id="dashBookerTable"></tbody>
+            </table>
+        </div>
     </div>
 
     <!-- Tab 2: Daily Entry -->
@@ -245,9 +267,9 @@
 
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 10px;">
             <h3>Transactions Record</h3>
-            <div class="no-print" style="display: flex; align-items: center; gap: 10px;">
+            <div class="no-print" style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
                 <label style="font-size: 13px; font-weight: bold;">Show Entries:</label>
-                <select id="entryLimitSelect" onchange="renderTransactions()" style="padding: 6px 10px;">
+                <select id="entryLimitSelect" onchange="renderTransactions()" style="padding: 6px 10px; width: auto;">
                     <option value="10">10</option>
                     <option value="20">20</option>
                     <option value="50">50</option>
@@ -258,34 +280,36 @@
                 <button class="btn-excel" onclick="exportTableToExcel('transactionTable', 'All_Transactions')">Download Excel 📊</button>
             </div>
         </div>
-        <table>
-            <thead>
-                <tr>
-                    <th style="width: 50px;">S.No</th>
-                    <th class="text-center">Date</th>
-                    <th class="text-left">Booker</th>
-                    <th class="text-left">Shop Name</th>
-                    <th class="text-left">Ref / Bill No</th>
-                    <th class="text-right">Credit</th>
-                    <th class="text-right">Recovery</th>
-                    <th class="no-print text-center">Action</th>
-                </tr>
-            </thead>
-            <tbody id="transactionTable"></tbody>
-        </table>
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 50px;">S.No</th>
+                        <th class="text-center">Date</th>
+                        <th class="text-left">Booker</th>
+                        <th class="text-left">Shop Name</th>
+                        <th class="text-left">Ref / Bill No</th>
+                        <th class="text-right">Credit</th>
+                        <th class="text-right">Recovery</th>
+                        <th class="no-print text-center">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="transactionTable"></tbody>
+            </table>
+        </div>
     </div>
 
     <!-- Tab 3: Shop Ledger Search -->
     <div id="ledger" class="tab-content">
         <div class="no-print" style="margin-bottom: 15px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-            <input type="text" id="searchShopInput" placeholder="Type Shop Name..." style="flex: 2;">
+            <input type="text" id="searchShopInput" placeholder="Type Shop Name..." style="flex: 2; min-width: 150px;">
             <div style="display: flex; align-items: center; gap: 5px;">
                 <label style="font-size: 12px;">To Date:</label>
-                <input type="date" id="ledgerToDate" onchange="renderLedger()">
+                <input type="date" id="ledgerToDate" onchange="renderLedger()" style="width: auto;">
             </div>
-            <button class="btn-add" style="grid-column: auto;" onclick="renderLedger()">View Ledger</button>
+            <button class="btn-add" style="grid-column: auto; padding: 9px 15px; font-size: 13px;" onclick="renderLedger()">View Ledger</button>
             <button class="btn-excel" onclick="exportTableToExcel('ledgerTable', 'Shop_Ledger')">Excel 📊</button>
-            <button class="btn-add" style="grid-column: auto; background: #6c757d;" onclick="window.print()">Print / PDF 🖨️</button>
+            <button class="btn-add" style="grid-column: auto; background: #6c757d; padding: 9px 15px; font-size: 13px;" onclick="window.print()">Print / PDF 🖨️</button>
         </div>
 
         <div class="summary-card">
@@ -299,38 +323,40 @@
             </div>
         </div>
 
-        <table>
-            <thead>
-                <tr>
-                    <th style="width: 50px;">S.No</th>
-                    <th class="text-center">Date</th>
-                    <th class="text-left">Booker</th>
-                    <th class="text-left">Bill / Ref No</th>
-                    <th class="text-right">Old Balance</th>
-                    <th class="text-right">Credit (+)</th>
-                    <th class="text-right">Recovery (-)</th>
-                    <th class="text-right">Running Balance</th>
-                </tr>
-            </thead>
-            <tbody id="ledgerTable"></tbody>
-        </table>
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 50px;">S.No</th>
+                        <th class="text-center">Date</th>
+                        <th class="text-left">Booker</th>
+                        <th class="text-left">Bill / Ref No</th>
+                        <th class="text-right">Old Balance</th>
+                        <th class="text-right">Credit (+)</th>
+                        <th class="text-right">Recovery (-)</th>
+                        <th class="text-right">Running Balance</th>
+                    </tr>
+                </thead>
+                <tbody id="ledgerTable"></tbody>
+            </table>
+        </div>
     </div>
 
     <!-- Tab 4: Order Booker Detail Ledger -->
     <div id="bookerLedger" class="tab-content">
         <div class="filter-box no-print">
-            <select id="selectBooker" style="flex: 1;" onchange="renderBookerDetail()">
+            <select id="selectBooker" style="flex: 1; min-width: 150px;" onchange="renderBookerDetail()">
                 <option value="">-- Select Order Booker --</option>
             </select>
             <div style="display: flex; align-items: center; gap: 5px;">
                 <label style="font-size: 12px;">To Date:</label>
-                <input type="date" id="bookerToDate" onchange="renderBookerDetail()">
+                <input type="date" id="bookerToDate" onchange="renderBookerDetail()" style="width: auto;">
             </div>
             <label class="checkbox-label">
                 <input type="checkbox" id="hideZeroBooker" onchange="renderBookerDetail()" checked> 🚫 Hide Zero Balance
             </label>
             <button class="btn-excel" onclick="exportTableToExcel('bookerShopsTable', 'Booker_Detail')">Excel 📊</button>
-            <button class="btn-add" style="grid-column: auto; background: #6c757d;" onclick="window.print()">Print / PDF 🖨️</button>
+            <button class="btn-add" style="grid-column: auto; background: #6c757d; padding: 9px 15px; font-size: 13px;" onclick="window.print()">Print / PDF 🖨️</button>
         </div>
 
         <div class="summary-card">
@@ -344,18 +370,20 @@
             </div>
         </div>
 
-        <table>
-            <thead>
-                <tr>
-                    <th style="width: 50px;">S.No</th>
-                    <th class="text-left">Shop Name</th>
-                    <th class="text-right">Total Credit</th>
-                    <th class="text-right">Total Recovery</th>
-                    <th class="text-right">Balance</th>
-                </tr>
-            </thead>
-            <tbody id="bookerShopsTable"></tbody>
-        </table>
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 50px;">S.No</th>
+                        <th class="text-left">Shop Name</th>
+                        <th class="text-right">Total Credit</th>
+                        <th class="text-right">Total Recovery</th>
+                        <th class="text-right">Balance</th>
+                    </tr>
+                </thead>
+                <tbody id="bookerShopsTable"></tbody>
+            </table>
+        </div>
     </div>
 
     <!-- Tab 5: Shops Directory -->
@@ -366,22 +394,24 @@
                 <input type="checkbox" id="hideZeroShops" onchange="renderShops()" checked> 🚫 Hide Zero Balance Shops
             </label>
             <button class="btn-excel" onclick="exportTableToExcel('shopsTable', 'All_Shops_Balance')">Excel 📊</button>
-            <button class="btn-add" style="grid-column: auto; background: #6c757d;" onclick="window.print()">Print / PDF 🖨️</button>
+            <button class="btn-add" style="grid-column: auto; background: #6c757d; padding: 9px 15px; font-size: 13px;" onclick="window.print()">Print / PDF 🖨️</button>
         </div>
-        <table>
-            <thead>
-                <tr>
-                    <th style="width: 50px;">S.No</th>
-                    <th class="text-left">Shop Name</th>
-                    <th class="text-left">Assigned Booker</th>
-                    <th class="text-right">Total Credit</th>
-                    <th class="text-right">Total Recovery</th>
-                    <th class="text-right">Net Balance</th>
-                    <th class="no-print text-center">Action / Reassign</th>
-                </tr>
-            </thead>
-            <tbody id="shopsTable"></tbody>
-        </table>
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 50px;">S.No</th>
+                        <th class="text-left">Shop Name</th>
+                        <th class="text-left">Assigned Booker</th>
+                        <th class="text-right">Total Credit</th>
+                        <th class="text-right">Total Recovery</th>
+                        <th class="text-right">Net Balance</th>
+                        <th class="no-print text-center">Action / Reassign</th>
+                    </tr>
+                </thead>
+                <tbody id="shopsTable"></tbody>
+            </table>
+        </div>
     </div>
 
     <!-- Tab 6: User Management -->
@@ -411,15 +441,14 @@
             <button type="button" class="btn-add" id="saveUserBtn" onclick="saveUser()">Create User 👤</button>
         </form>
 
-        <!-- Reassign / Bulk Route Transfer -->
         <div style="background: #eef2f5; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px dashed #007bff;">
             <h4 style="margin: 0 0 10px 0; color: #007bff;">🔄 Reassign Booker Shops (Bulk Route Transfer)</h4>
             <p style="font-size: 12px; color: #555; margin-bottom: 10px;">Agar koi booker chutti par hai toh uski tamaam shops ka record naye booker par shift karein:</p>
             <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                <select id="transferFromBooker" style="flex: 1;">
+                <select id="transferFromBooker" style="flex: 1; min-width: 150px;">
                     <option value="">-- From Booker (Absent) --</option>
                 </select>
-                <select id="transferToBooker" style="flex: 1;">
+                <select id="transferToBooker" style="flex: 1; min-width: 150px;">
                     <option value="">-- To Booker (New/Covering) --</option>
                 </select>
                 <button class="btn-excel" style="background: #007bff;" onclick="reassignBookerShops()">Transfer All Shops 🔄</button>
@@ -427,19 +456,21 @@
         </div>
 
         <h4 style="margin-top: 25px;">Users List</h4>
-        <table>
-            <thead>
-                <tr>
-                    <th style="width: 50px;">S.No</th>
-                    <th class="text-left">Username</th>
-                    <th class="text-left">Password</th>
-                    <th class="text-center">Role</th>
-                    <th class="text-left">Assigned Booker Name</th>
-                    <th class="no-print text-center">Action</th>
-                </tr>
-            </thead>
-            <tbody id="usersTable"></tbody>
-        </table>
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 50px;">S.No</th>
+                        <th class="text-left">Username</th>
+                        <th class="text-left">Password</th>
+                        <th class="text-center">Role</th>
+                        <th class="text-left">Assigned Booker Name</th>
+                        <th class="no-print text-center">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="usersTable"></tbody>
+            </table>
+        </div>
     </div>
 
     <!-- Tab 7: Backup & Restore -->
@@ -465,7 +496,29 @@
     </div>
 </div>
 
+<!-- Firebase Realtime Database SDKs -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
 <script>
+    // ----------------------------------------------------
+    // IMPORTANT: APNA FIREBASE CONFIG NICHE WALE OBJECT MEIN PASTE KAREIN
+    // ----------------------------------------------------
+    const firebaseConfig = {
+        apiKey: "YOUR_API_KEY",
+        authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+        databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
+        projectId: "YOUR_PROJECT_ID",
+        storageBucket: "YOUR_PROJECT_ID.appspot.com",
+        messagingSenderId: "YOUR_SENDER_ID",
+        appId: "YOUR_APP_ID"
+    };
+
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
+    const db = firebase.database();
+
     const DEFAULT_USERS = [
         { username: "admin", password: "adnan1414", role: "admin", bookerName: "ALL" },
         { username: "arsalan", password: "123", role: "booker", bookerName: "ARSALAN" },
@@ -473,18 +526,44 @@
         { username: "inaam", password: "123", role: "booker", bookerName: "INAAM" }
     ];
 
-    // Default Transactions Data (Agar LocalStorage khali ho to ye load hoga)
     const DEFAULT_TRANSACTIONS = [
         { date: "2026-08-01", booker: "ARSALAN", shop: "AL MADINA STORE", ref: "INV-101", credit: 5000, recovery: 2000 },
         { date: "2026-08-02", booker: "INAAM", shop: "KHAN TRADERS", ref: "INV-102", credit: 8000, recovery: 0 }
     ];
 
-    let USERS_DATABASE = JSON.parse(localStorage.getItem('pos_users_db')) || DEFAULT_USERS;
+    let USERS_DATABASE = DEFAULT_USERS;
     let currentUser = JSON.parse(sessionStorage.getItem('pos_current_user')) || null;
-    let transactions = JSON.parse(localStorage.getItem('pos_transactions')) || DEFAULT_TRANSACTIONS;
+    let transactions = DEFAULT_TRANSACTIONS;
 
-    // Filter invalid / blank shop entries automatically
-    transactions = transactions.filter(t => t && t.shop && t.shop.trim() !== '' && t.shop.toUpperCase() !== 'UNDEFINED' && t.shop.toUpperCase() !== 'UNKNOWN');
+    // Realtime Database Event Listeners
+    db.ref('pos_transactions').on('value', snapshot => {
+        const val = snapshot.val();
+        if (val) {
+            transactions = Array.isArray(val) ? val : Object.values(val);
+        } else {
+            transactions = DEFAULT_TRANSACTIONS;
+        }
+        transactions = transactions.filter(t => t && t.shop && t.shop.trim() !== '' && t.shop.toUpperCase() !== 'UNDEFINED' && t.shop.toUpperCase() !== 'UNKNOWN');
+        refreshCurrentTab();
+    });
+
+    db.ref('pos_users_db').on('value', snapshot => {
+        const val = snapshot.val();
+        if (val) {
+            USERS_DATABASE = Array.isArray(val) ? val : Object.values(val);
+        } else {
+            USERS_DATABASE = DEFAULT_USERS;
+        }
+        refreshCurrentTab();
+    });
+
+    function saveTransactionsToCloud() {
+        db.ref('pos_transactions').set(transactions);
+    }
+
+    function saveUsersToCloud() {
+        db.ref('pos_users_db').set(USERS_DATABASE);
+    }
 
     document.getElementById('entryDate').valueAsDate = new Date();
 
@@ -555,8 +634,21 @@
         }
     }
 
+    function refreshCurrentTab() {
+        const activeTab = document.querySelector('.tab-content.active');
+        if (activeTab) {
+            const tabId = activeTab.id;
+            if(tabId === 'dashboard') renderDashboard();
+            if(tabId === 'entry') renderTransactions();
+            if(tabId === 'ledger') renderLedger();
+            if(tabId === 'bookerLedger') populateBookerDropdown();
+            if(tabId === 'shops') renderShops();
+            if(tabId === 'users') renderUsers();
+        }
+    }
+
     function openTab(tabId, btn) {
-        if(currentUser.role !== 'admin' && (tabId === 'dashboard' || tabId === 'entry' || tabId === 'backup' || tabId === 'users')) {
+        if(currentUser && currentUser.role !== 'admin' && (tabId === 'dashboard' || tabId === 'entry' || tabId === 'backup' || tabId === 'users')) {
             alert('Access Denied!');
             return;
         }
@@ -566,14 +658,7 @@
         document.getElementById(tabId).classList.add('active');
         if(btn) btn.classList.add('active');
 
-        setTimeout(() => {
-            if(tabId === 'dashboard') renderDashboard();
-            if(tabId === 'entry') renderTransactions();
-            if(tabId === 'ledger') renderLedger();
-            if(tabId === 'bookerLedger') populateBookerDropdown();
-            if(tabId === 'shops') renderShops();
-            if(tabId === 'users') renderUsers();
-        }, 10);
+        setTimeout(refreshCurrentTab, 10);
     }
 
     function addTransaction() {
@@ -601,8 +686,7 @@
             transactions.push(txObj);
         }
 
-        localStorage.setItem('pos_transactions', JSON.stringify(transactions));
-        renderTransactions();
+        saveTransactionsToCloud();
 
         document.getElementById('shopName').value = '';
         document.getElementById('refNo').value = '';
@@ -658,8 +742,7 @@
     function deleteTx(index) {
         if(confirm('Are you sure you want to delete this entry?')) {
             transactions.splice(index, 1);
-            localStorage.setItem('pos_transactions', JSON.stringify(transactions));
-            renderTransactions();
+            saveTransactionsToCloud();
         }
     }
 
@@ -746,7 +829,7 @@
         for(let i = 0; i < transactions.length; i++) {
             const t = transactions[i];
             
-            if(currentUser.role === 'booker' && cleanStr(t.booker) !== cleanStr(currentUser.bookerName)) continue;
+            if(currentUser && currentUser.role === 'booker' && cleanStr(t.booker) !== cleanStr(currentUser.bookerName)) continue;
 
             if(cleanStr(t.shop).includes(query) && (!toDate || t.date <= toDate)) {
                 const oldBal = runningBal;
@@ -780,7 +863,7 @@
             if(transactions[i].booker) bookerSet.add(cleanStr(transactions[i].booker));
         }
 
-        if(currentUser.role === 'booker') {
+        if(currentUser && currentUser.role === 'booker') {
             const bName = cleanStr(currentUser.bookerName);
             select.innerHTML = `<option value="${bName}">${bName}</option>`;
             select.value = bName;
@@ -796,7 +879,7 @@
 
     function renderBookerDetail() {
         let bSelect = cleanStr(document.getElementById('selectBooker').value);
-        if(currentUser.role === 'booker') {
+        if(currentUser && currentUser.role === 'booker') {
             bSelect = cleanStr(currentUser.bookerName);
         }
 
@@ -855,7 +938,6 @@
         const tbody = document.getElementById('shopsTable');
         const shopsMap = {};
 
-        // Collect all available bookers for the dropdown
         const bookersList = new Set();
         USERS_DATABASE.forEach(u => {
             if(u.bookerName && u.bookerName !== 'ALL') bookersList.add(cleanStr(u.bookerName));
@@ -864,7 +946,7 @@
         for(let i = 0; i < transactions.length; i++) {
             const t = transactions[i];
 
-            if(currentUser.role === 'booker' && cleanStr(t.booker) !== cleanStr(currentUser.bookerName)) {
+            if(currentUser && currentUser.role === 'booker' && cleanStr(t.booker) !== cleanStr(currentUser.bookerName)) {
                 continue;
             }
 
@@ -872,7 +954,7 @@
             if(!shopsMap[sName]) shopsMap[sName] = { booker: cleanStr(t.booker), credit: 0, recovery: 0 };
             shopsMap[sName].credit += t.credit;
             shopsMap[sName].recovery += t.recovery;
-            shopsMap[sName].booker = cleanStr(t.booker); // Latest Booker
+            shopsMap[sName].booker = cleanStr(t.booker);
             bookersList.add(cleanStr(t.booker));
         }
 
@@ -898,8 +980,8 @@
                     <td class="text-right">${data.recovery.toLocaleString()}</td>
                     <td class="text-right">${formatBalance(net)}</td>
                     <td class="no-print text-center">
-                        ${currentUser.role === 'admin' ? `
-                            <select id="transferSelect_${sno}" style="padding: 4px; font-size: 11px;">
+                        ${currentUser && currentUser.role === 'admin' ? `
+                            <select id="transferSelect_${sno}" style="padding: 4px; font-size: 11px; width: auto;">
                                 ${bookerOptionsHTML}
                             </select>
                             <button class="btn-transfer" onclick="transferSingleShop('${sName.replace(/'/g, "\\'")}', 'transferSelect_${sno}')">Transfer 🔄</button>
@@ -932,9 +1014,8 @@
             }
         }
 
-        localStorage.setItem('pos_transactions', JSON.stringify(transactions));
+        saveTransactionsToCloud();
         alert(`Success! "${shopName}" with ${count} entries has been transferred to ${newBooker}.`);
-        renderShops();
     }
 
     function renderUsers() {
@@ -1000,12 +1081,11 @@
             alert('User Created Successfully!');
         }
 
-        localStorage.setItem('pos_users_db', JSON.stringify(USERS_DATABASE));
+        saveUsersToCloud();
         
         document.getElementById('newUsername').value = '';
         document.getElementById('newPassword').value = '';
         document.getElementById('newBookerName').value = '';
-        renderUsers();
     }
 
     function editUser(index) {
@@ -1023,8 +1103,7 @@
     function deleteUser(index) {
         if(confirm('Are you sure you want to delete this user?')) {
             USERS_DATABASE.splice(index, 1);
-            localStorage.setItem('pos_users_db', JSON.stringify(USERS_DATABASE));
-            renderUsers();
+            saveUsersToCloud();
         }
     }
 
@@ -1054,9 +1133,8 @@
             }
         }
 
-        localStorage.setItem('pos_transactions', JSON.stringify(transactions));
+        saveTransactionsToCloud();
         alert(`Success! Transferred ${count} entries from ${fromB} to ${toB}.`);
-        renderUsers();
     }
 
     function downloadBackup() {
@@ -1076,10 +1154,15 @@
         reader.onload = function(e) {
             try {
                 const imported = JSON.parse(e.target.result);
-                if(imported.transactions) localStorage.setItem('pos_transactions', JSON.stringify(imported.transactions));
-                if(imported.users) localStorage.setItem('pos_users_db', JSON.stringify(imported.users));
+                if(imported.transactions) {
+                    transactions = imported.transactions;
+                    saveTransactionsToCloud();
+                }
+                if(imported.users) {
+                    USERS_DATABASE = imported.users;
+                    saveUsersToCloud();
+                }
                 alert('Restored Successfully!');
-                location.reload();
             } catch(err) { alert('Invalid File!'); }
         };
         reader.readAsText(file);
