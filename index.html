@@ -126,6 +126,14 @@
         .bal-negative { color: #28a745; font-weight: bold; }
         .bal-zero { color: #555; font-weight: bold; }
 
+        /* Custom Checkbox Multi-Select Box Styling */
+        .shop-permission-box {
+            border: 1px solid #ccc; border-radius: 5px; padding: 10px; max-height: 180px; overflow-y: auto; background: #fff; grid-column: 1 / -1;
+        }
+        .shop-permission-item {
+            display: flex; align-items: center; gap: 8px; font-size: 13px; padding: 3px 0;
+        }
+
         @media (max-width: 768px) {
             body { padding: 8px; }
             .container { padding: 12px; }
@@ -433,6 +441,7 @@
             <label class="checkbox-label">
                 <input type="checkbox" id="hideZeroShops" onchange="renderShops()" checked> 🚫 Hide Zero Balance Shops
             </label>
+            <button class="btn-delete admin-only" onclick="deleteSelectedShops()" style="padding: 9px 15px; font-weight: bold;">Delete Selected Shops 🗑️</button>
             <button class="btn-excel" onclick="exportTableToExcel('shopsTable', 'All_Shops_Balance')">Excel 📊</button>
             <button class="btn-add" style="grid-column: auto; background: #6c757d; padding: 9px 15px; font-size: 13px;" onclick="window.print()">Print / PDF 🖨️</button>
         </div>
@@ -440,6 +449,7 @@
             <table>
                 <thead>
                     <tr>
+                        <th class="no-print admin-only" style="width: 40px;"><input type="checkbox" id="selectAllShops" onchange="toggleSelectAllShops(this)"></th>
                         <th style="width: 50px;">S.No</th>
                         <th class="text-left">Shop Name</th>
                         <th class="text-left">Assigned Booker</th>
@@ -469,15 +479,24 @@
             </div>
             <div class="form-group">
                 <label>Role <span class="required-star">*</span>:</label>
-                <select id="newUserRole">
-                    <option value="booker">Booker (View Only)</option>
+                <select id="newUserRole" onchange="toggleUserRoleFields()">
+                    <option value="booker">Booker (View Only - All assigned booker shops)</option>
+                    <option value="custom_booker">Custom Access Booker (Selective Shops Allowed)</option>
                     <option value="admin">Admin (Full Access)</option>
                 </select>
             </div>
-            <div class="form-group">
+            <div class="form-group" id="assignedBookerGroup">
                 <label>Assigned Booker Name <span class="required-star">*</span>:</label>
-                <input type="text" id="newBookerName" placeholder="e.g. SHAHID" required>
+                <input type="text" id="newBookerName" placeholder="e.g. SHAHID">
             </div>
+
+            <div class="form-group" id="allowedShopsGroup" style="grid-column: 1 / -1; display: none;">
+                <label>Select Allowed Shops (Check shops to show for this user):</label>
+                <div class="shop-permission-box" id="shopsCheckboxesList">
+                    <!-- Dynamic Checkboxes -->
+                </div>
+            </div>
+
             <button type="button" class="btn-add" id="saveUserBtn" onclick="saveUser()">Create User 👤</button>
         </form>
 
@@ -504,7 +523,7 @@
                         <th class="text-left">Username</th>
                         <th class="text-left">Password</th>
                         <th class="text-center">Role</th>
-                        <th class="text-left">Assigned Booker Name</th>
+                        <th class="text-left">Assigned Booker / Allowed Shops</th>
                         <th class="no-print text-center">Action</th>
                     </tr>
                 </thead>
@@ -559,10 +578,10 @@
     const db = firebase.database();
 
     const DEFAULT_USERS = [
-        { username: "admin", password: "adnan1414", role: "admin", bookerName: "ALL" },
-        { username: "arsalan", password: "123", role: "booker", bookerName: "ARSALAN" },
-        { username: "waqas", password: "123", role: "booker", bookerName: "WAQAS" },
-        { username: "inaam", password: "123", role: "booker", bookerName: "INAAM" }
+        { username: "admin", password: "adnan1414", role: "admin", bookerName: "ALL", allowedShops: [] },
+        { username: "arsalan", password: "123", role: "booker", bookerName: "ARSALAN", allowedShops: [] },
+        { username: "waqas", password: "123", role: "booker", bookerName: "WAQAS", allowedShops: [] },
+        { username: "inaam", password: "123", role: "booker", bookerName: "INAAM", allowedShops: [] }
     ];
 
     const DEFAULT_TRANSACTIONS = [
@@ -662,7 +681,11 @@
 
         document.getElementById('loginOverlay').style.display = 'none';
         document.getElementById('loggedUsername').innerText = currentUser.username.toUpperCase();
-        document.getElementById('userRoleBadge').innerText = currentUser.role === 'admin' ? 'Admin' : 'Booker (View Only)';
+        
+        let roleBadgeText = 'Admin';
+        if(currentUser.role === 'booker') roleBadgeText = 'Booker (View Only)';
+        if(currentUser.role === 'custom_booker') roleBadgeText = 'Custom Access Booker';
+        document.getElementById('userRoleBadge').innerText = roleBadgeText;
 
         if(currentUser.role === 'admin') {
             document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'inline-block');
@@ -698,6 +721,19 @@
         if(btn) btn.classList.add('active');
 
         setTimeout(refreshCurrentTab, 10);
+    }
+
+    function isShopAllowedForUser(shopName, bookerName) {
+        if (!currentUser) return false;
+        if (currentUser.role === 'admin') return true;
+        if (currentUser.role === 'custom_booker') {
+            const allowedList = (currentUser.allowedShops || []).map(s => cleanStr(s));
+            return allowedList.includes(cleanStr(shopName));
+        }
+        if (currentUser.role === 'booker') {
+            return cleanStr(currentUser.bookerName) === cleanStr(bookerName);
+        }
+        return true;
     }
 
     function addTransaction() {
@@ -919,6 +955,8 @@
             const t = transactions[i];
 
             if(cleanStr(t.shop).includes(query) && (!toDate || t.date <= toDate)) {
+                if(!isShopAllowedForUser(t.shop, t.booker)) continue;
+
                 const oldBal = runningBal;
                 runningBal += (t.credit - t.recovery);
 
@@ -959,6 +997,14 @@
             return;
         }
 
+        if(currentUser && currentUser.role === 'custom_booker') {
+            select.innerHTML = `<option value="CUSTOM_USER">Custom Allowed Shops</option>`;
+            select.value = "CUSTOM_USER";
+            select.disabled = true;
+            renderBookerDetail();
+            return;
+        }
+
         select.disabled = false;
         const sortedBookers = Array.from(bookerSet).sort((a, b) => a.localeCompare(b));
         sortedBookers.forEach(b => select.innerHTML += `<option value="${b}">${b}</option>`);
@@ -982,12 +1028,16 @@
             return;
         }
 
-        document.getElementById('bCardName').innerText = bSelect;
+        document.getElementById('bCardName').innerText = currentUser && currentUser.role === 'custom_booker' ? currentUser.username.toUpperCase() : bSelect;
         const shopSummary = {};
 
         for(let i = 0; i < transactions.length; i++) {
             const t = transactions[i];
-            if(cleanStr(t.booker) === bSelect && (!toDate || t.date <= toDate)) {
+            const isMatch = (currentUser && currentUser.role === 'custom_booker') ? true : (cleanStr(t.booker) === bSelect);
+            
+            if(isMatch && (!toDate || t.date <= toDate)) {
+                if(!isShopAllowedForUser(t.shop, t.booker)) continue;
+
                 const sName = cleanStr(t.shop);
                 if(!shopSummary[sName]) shopSummary[sName] = { credit: 0, recovery: 0 };
                 shopSummary[sName].credit += t.credit;
@@ -1029,7 +1079,6 @@
         const shopsMap = {};
 
         const isAdmin = currentUser && currentUser.role === 'admin';
-        const loggedBooker = currentUser ? cleanStr(currentUser.bookerName) : '';
 
         const bookersList = new Set();
         USERS_DATABASE.forEach(u => {
@@ -1056,7 +1105,7 @@
         for(const sName of sortedShops) {
             const data = shopsMap[sName];
             
-            if (!isAdmin && data.booker !== loggedBooker) {
+            if (!isShopAllowedForUser(sName, data.booker)) {
                 continue;
             }
 
@@ -1072,6 +1121,7 @@
 
             html += `
                 <tr>
+                    <td class="no-print text-center admin-only"><input type="checkbox" class="shop-select-checkbox" value="${escapedShopName}"></td>
                     <td class="text-center">${sno++}</td>
                     <td class="text-left"><strong>${sName}</strong></td>
                     <td class="text-left">${data.booker}</td>
@@ -1093,6 +1143,31 @@
         }
 
         tbody.innerHTML = html;
+        if(document.getElementById('selectAllShops')) document.getElementById('selectAllShops').checked = false;
+        applyUserPermissions();
+    }
+
+    function toggleSelectAllShops(master) {
+        const checkboxes = document.querySelectorAll('.shop-select-checkbox');
+        checkboxes.forEach(cb => cb.checked = master.checked);
+    }
+
+    function deleteSelectedShops() {
+        const checkboxes = document.querySelectorAll('.shop-select-checkbox:checked');
+        if(checkboxes.length === 0) {
+            alert('Please select at least one shop to delete!');
+            return;
+        }
+
+        const selectedShops = Array.from(checkboxes).map(cb => cb.value);
+
+        if(confirm(`Are you sure you want to delete ${selectedShops.length} selected shops and ALL their transaction entries?`)) {
+            const initialLen = transactions.length;
+            transactions = transactions.filter(t => !selectedShops.includes(cleanStr(t.shop)));
+            const deletedEntries = initialLen - transactions.length;
+            saveTransactionsToCloud();
+            alert(`Selected shops deleted successfully! (${deletedEntries} total transaction entries removed).`);
+        }
     }
 
     function editShopName(oldShopName) {
@@ -1149,6 +1224,54 @@
         alert(`Success! "${shopName}" with ${count} entries has been transferred to ${newBooker}.`);
     }
 
+    function toggleUserRoleFields() {
+        const role = document.getElementById('newUserRole').value;
+        const bookerGroup = document.getElementById('assignedBookerGroup');
+        const shopsGroup = document.getElementById('allowedShopsGroup');
+
+        if (role === 'custom_booker') {
+            bookerGroup.style.display = 'none';
+            shopsGroup.style.display = 'flex';
+            populateShopsCheckboxes();
+        } else if (role === 'admin') {
+            bookerGroup.style.display = 'flex';
+            shopsGroup.style.display = 'none';
+        } else {
+            bookerGroup.style.display = 'flex';
+            shopsGroup.style.display = 'none';
+        }
+    }
+
+    function populateShopsCheckboxes(selectedShopsList = []) {
+        const container = document.getElementById('shopsCheckboxesList');
+        const allShopsSet = new Set();
+
+        transactions.forEach(t => {
+            if (t.shop) allShopsSet.add(cleanStr(t.shop));
+        });
+
+        const sortedShops = Array.from(allShopsSet).sort((a, b) => a.localeCompare(b));
+        const cleanSelected = selectedShopsList.map(s => cleanStr(s));
+
+        if (sortedShops.length === 0) {
+            container.innerHTML = '<span style="color:#888; font-size:12px;">No shops found in database.</span>';
+            return;
+        }
+
+        let html = '';
+        sortedShops.forEach((shop, idx) => {
+            const isChecked = cleanSelected.includes(shop) ? 'checked' : '';
+            html += `
+                <div class="shop-permission-item">
+                    <input type="checkbox" class="user-allowed-shop-cb" value="${shop}" id="cb_shop_${idx}" ${isChecked}>
+                    <label for="cb_shop_${idx}" style="font-weight: normal; font-size: 13px;">${shop}</label>
+                </div>
+            `;
+        });
+
+        container.innerHTML = html;
+    }
+
     function renderUsers() {
         const tbody = document.getElementById('usersTable');
         const fromSel = document.getElementById('transferFromBooker');
@@ -1161,13 +1284,19 @@
         const bookerNamesSet = new Set();
 
         USERS_DATABASE.forEach((u, i) => {
+            let detailText = u.bookerName || '-';
+            if (u.role === 'custom_booker') {
+                const count = (u.allowedShops || []).length;
+                detailText = `Custom Access (${count} Shops Allowed)`;
+            }
+
             html += `
                 <tr>
                     <td class="text-center">${i + 1}</td>
                     <td class="text-left">${u.username}</td>
                     <td class="text-left">${u.password}</td>
                     <td class="text-center">${u.role.toUpperCase()}</td>
-                    <td class="text-left">${u.bookerName}</td>
+                    <td class="text-left">${detailText}</td>
                     <td class="no-print text-center">
                         <button class="btn-edit" onclick="editUser(${i})">Edit</button>
                         ${u.username !== 'admin' ? `<button class="btn-delete" onclick="deleteUser(${i})">Delete</button>` : '<span style="color:#aaa; font-size:11px;">(Master Admin)</span>'}
@@ -1198,19 +1327,28 @@
         const uName = cleanStr(document.getElementById('newUsername').value);
         const pWord = document.getElementById('newPassword').value.trim();
         const role = document.getElementById('newUserRole').value;
-        const bName = cleanStr(document.getElementById('newBookerName').value);
+        let bName = cleanStr(document.getElementById('newBookerName').value);
         const editIdx = parseInt(document.getElementById('editUserIndex').value);
 
-        if(!uName || !pWord || !bName) return alert('Fill all fields!');
+        let allowedShops = [];
+        if (role === 'custom_booker') {
+            bName = 'CUSTOM';
+            const checkboxes = document.querySelectorAll('.user-allowed-shop-cb:checked');
+            allowedShops = Array.from(checkboxes).map(cb => cb.value);
+        }
+
+        if(!uName || !pWord || (role !== 'custom_booker' && !bName)) return alert('Fill all required fields!');
+
+        const userObj = { username: uName, password: pWord, role, bookerName: bName, allowedShops };
 
         if(editIdx >= 0) {
-            USERS_DATABASE[editIdx] = { username: uName, password: pWord, role, bookerName: bName };
+            USERS_DATABASE[editIdx] = userObj;
             document.getElementById('editUserIndex').value = -1;
             document.getElementById('saveUserBtn').innerText = 'Create User 👤';
             document.getElementById('userFormTitle').innerText = '⚙️ Create New User';
             alert('User Updated Successfully!');
         } else {
-            USERS_DATABASE.push({ username: uName, password: pWord, role, bookerName: bName });
+            USERS_DATABASE.push(userObj);
             alert('User Created Successfully!');
         }
 
@@ -1219,6 +1357,8 @@
         document.getElementById('newUsername').value = '';
         document.getElementById('newPassword').value = '';
         document.getElementById('newBookerName').value = '';
+        document.getElementById('newUserRole').value = 'booker';
+        toggleUserRoleFields();
     }
 
     function editUser(index) {
@@ -1226,8 +1366,14 @@
         document.getElementById('newUsername').value = u.username;
         document.getElementById('newPassword').value = u.password;
         document.getElementById('newUserRole').value = u.role;
-        document.getElementById('newBookerName').value = u.bookerName;
+        document.getElementById('newBookerName').value = u.bookerName || '';
         document.getElementById('editUserIndex').value = index;
+        
+        toggleUserRoleFields();
+        if (u.role === 'custom_booker') {
+            populateShopsCheckboxes(u.allowedShops || []);
+        }
+
         document.getElementById('saveUserBtn').innerText = 'Update User ✏️';
         document.getElementById('userFormTitle').innerText = '✏️ Edit User Details';
         window.scrollTo({ top: 0, behavior: 'smooth' });
