@@ -379,7 +379,6 @@
                         <th class="text-center">Date</th>
                         <th class="text-left">Booker</th>
                         <th class="text-left">Bill / Ref No</th>
-                        <th class="text-right">Old Balance</th>
                         <th class="text-right">Credit (+)</th>
                         <th class="text-right">Recovery (-)</th>
                         <th class="text-right">Running Balance</th>
@@ -1027,7 +1026,7 @@
             if(cleanStr(t.shop).includes(query) && (!toDate || t.date <= toDate)) {
                 if(!isShopAllowedForUser(t.shop, t.booker)) continue;
 
-                const oldBal = runningBal;
+                // Pichla remaining balance + Credit - Recovery = New Remaining/Running Balance
                 runningBal += (t.credit - t.recovery);
 
                 html += `
@@ -1036,7 +1035,6 @@
                         <td class="text-center">${t.date}</td>
                         <td class="text-left">${t.booker}</td>
                         <td class="text-left">${t.ref}</td>
-                        <td class="text-right">${oldBal.toLocaleString()}</td>
                         <td class="text-right">${t.credit > 0 ? t.credit.toLocaleString() : '-'}</td>
                         <td class="text-right">${t.recovery > 0 ? t.recovery.toLocaleString() : '-'}</td>
                         <td class="text-right">${formatBalance(runningBal)}</td>
