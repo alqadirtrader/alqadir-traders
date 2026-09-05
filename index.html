@@ -272,11 +272,14 @@
             </div>
             <div class="form-group">
                 <label>Order Booker <span class="required-star">*</span>:</label>
-                <input type="text" id="bookerName" placeholder="e.g. ARSALAN" required>
+                <select id="bookerName" required onchange="populateShopSuggestions()">
+                    <option value="">-- Select Order Booker --</option>
+                </select>
             </div>
             <div class="form-group">
                 <label>Shop Name <span class="required-star">*</span>:</label>
-                <input type="text" id="shopName" placeholder="Enter Shop Name..." required>
+                <input type="text" id="shopName" list="shopSuggestionsList" placeholder="Select or Type Shop Name..." required autocomplete="off">
+                <datalist id="shopSuggestionsList"></datalist>
             </div>
             <div class="form-group">
                 <label>Bill / Ref No:</label>
@@ -619,6 +622,7 @@
         }
         transactions = transactions.filter(t => t && t.shop && t.shop.toString().trim() !== '' && t.shop.toString().toUpperCase() !== 'UNDEFINED' && t.shop.toString().toUpperCase() !== 'UNKNOWN');
         populateShopDropdowns();
+        populateEntryBookersDropdown();
         refreshCurrentTab();
     });
 
@@ -629,6 +633,7 @@
         } else {
             USERS_DATABASE = DEFAULT_USERS;
         }
+        populateEntryBookersDropdown();
         refreshCurrentTab();
     });
 
@@ -677,7 +682,7 @@
 
         if(foundUser) {
             currentUser = foundUser;
-            sessionStorage.getItem('pos_current_user', JSON.stringify(currentUser));
+            sessionStorage.setItem('pos_current_user', JSON.stringify(currentUser));
             applyUserPermissions();
         } else {
             alert('Invalid Username or Password!');
@@ -753,6 +758,54 @@
         return true;
     }
 
+    function populateEntryBookersDropdown() {
+        const bSelect = document.getElementById('bookerName');
+        if (!bSelect) return;
+        const currentVal = bSelect.value;
+
+        const bookerSet = new Set();
+        USERS_DATABASE.forEach(u => {
+            if (u.bookerName && u.bookerName !== 'ALL') bookerSet.add(u.bookerName.toUpperCase());
+        });
+        transactions.forEach(t => {
+            if (t.booker) bookerSet.add(t.booker.toUpperCase());
+        });
+
+        const sortedBookers = Array.from(bookerSet).sort((a, b) => a.localeCompare(b));
+        
+        let html = '<option value="">-- Select Order Booker --</option>';
+        sortedBookers.forEach(b => {
+            html += `<option value="${b}">${b}</option>`;
+        });
+        bSelect.innerHTML = html;
+        bSelect.value = currentVal;
+
+        populateShopSuggestions();
+    }
+
+    function populateShopSuggestions() {
+        const selectedBooker = cleanStr(document.getElementById('bookerName').value);
+        const datalist = document.getElementById('shopSuggestionsList');
+        if (!datalist) return;
+
+        datalist.innerHTML = '';
+        if (!selectedBooker) return;
+
+        const shopsSet = new Set();
+        transactions.forEach(t => {
+            if (t.shop && cleanStr(t.booker) === selectedBooker) {
+                shopsSet.add(t.shop.toUpperCase());
+            }
+        });
+
+        const sortedShops = Array.from(shopsSet).sort((a, b) => a.localeCompare(b));
+        sortedShops.forEach(s => {
+            const option = document.createElement('option');
+            option.value = s;
+            datalist.appendChild(option);
+        });
+    }
+
     function addTransaction() {
         const date = document.getElementById('entryDate').value;
         const booker = document.getElementById('bookerName').value.trim().toUpperCase();
@@ -763,7 +816,7 @@
         const editIdx = parseInt(document.getElementById('editIndex').value);
 
         if(!date || !booker || !shop || shop === 'UNDEFINED' || shop === 'UNKNOWN') {
-            alert('Please fill all required fields with a valid shop name.');
+            alert('Please select a Booker and enter a valid shop name.');
             return;
         }
 
@@ -784,6 +837,7 @@
         document.getElementById('refNo').value = '';
         document.getElementById('creditVal').value = '0';
         document.getElementById('recoveryVal').value = '0';
+        populateShopSuggestions();
     }
 
     function uploadBulkCSV(event) {
@@ -893,6 +947,7 @@
         const t = transactions[index];
         document.getElementById('entryDate').value = t.date;
         document.getElementById('bookerName').value = t.booker;
+        populateShopSuggestions();
         document.getElementById('shopName').value = t.shop;
         document.getElementById('refNo').value = t.ref;
         document.getElementById('creditVal').value = t.credit;
