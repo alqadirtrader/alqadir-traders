@@ -125,10 +125,10 @@
         .bal-zero { color: #555; font-weight: bold; }
 
         .shop-permission-box {
-            border: 1px solid #ccc; border-radius: 5px; padding: 10px; max-height: 180px; overflow-y: auto; background: #fff; grid-column: 1 / -1;
+            border: 1px solid #ccc; border-radius: 5px; padding: 10px; max-height: 200px; overflow-y: auto; background: #fff;
         }
         .shop-permission-item {
-            display: flex; align-items: center; gap: 8px; font-size: 13px; padding: 3px 0;
+            display: flex; align-items: center; gap: 8px; font-size: 13px; padding: 4px 0; border-bottom: 1px dashed #f0f0f0;
         }
 
         @media (max-width: 768px) {
@@ -489,8 +489,19 @@
                 <input type="text" id="newBookerName" placeholder="e.g. SHAHID">
             </div>
 
+            <!-- Custom Access Booker Specific Fields -->
+            <div class="form-group" id="customBookerSelectGroup" style="display: none;">
+                <label>Select Associated Booker Name <span class="required-star">*</span>:</label>
+                <select id="customBookerSelect" onchange="onCustomBookerSelectChange()">
+                    <option value="">-- Choose Booker --</option>
+                </select>
+            </div>
+
             <div class="form-group" id="allowedShopsGroup" style="grid-column: 1 / -1; display: none;">
-                <label>Select Allowed Shops (Check shops to show for this user):</label>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                    <label style="margin: 0;">Select Allowed Shops (Check shops to show for this user):</label>
+                    <input type="text" id="customShopSearchInput" placeholder="🔍 Search Shops..." style="width: 200px; padding: 5px 10px; font-size: 12px;" oninput="filterShopsCheckboxes()">
+                </div>
                 <div class="shop-permission-box" id="shopsCheckboxesList">
                 </div>
             </div>
@@ -1040,8 +1051,9 @@
         }
 
         if(currentUser && currentUser.role === 'custom_booker') {
-            select.innerHTML = `<option value="CUSTOM_USER">Custom Allowed Shops</option>`;
-            select.value = "CUSTOM_USER";
+            const bName = (currentUser.bookerName || 'CUSTOM').toUpperCase();
+            select.innerHTML = `<option value="${bName}">${bName} (Custom Access)</option>`;
+            select.value = bName;
             select.disabled = true;
             renderBookerDetail();
             return;
@@ -1269,27 +1281,79 @@
     function toggleUserRoleFields() {
         const role = document.getElementById('newUserRole').value;
         const bookerGroup = document.getElementById('assignedBookerGroup');
+        const customBookerGroup = document.getElementById('customBookerSelectGroup');
         const shopsGroup = document.getElementById('allowedShopsGroup');
 
         if (role === 'custom_booker') {
             bookerGroup.style.display = 'none';
+            customBookerGroup.style.display = 'flex';
             shopsGroup.style.display = 'flex';
+            populateCustomBookerDropdown();
             populateShopsCheckboxes();
         } else if (role === 'admin') {
             bookerGroup.style.display = 'flex';
+            customBookerGroup.style.display = 'none';
             shopsGroup.style.display = 'none';
         } else {
             bookerGroup.style.display = 'flex';
+            customBookerGroup.style.display = 'none';
             shopsGroup.style.display = 'none';
         }
     }
 
-    function populateShopsCheckboxes(selectedShopsList = []) {
+    function populateCustomBookerDropdown(selectedBooker = '') {
+        const select = document.getElementById('customBookerSelect');
+        select.innerHTML = '<option value="">-- Choose Booker --</option>';
+
+        const bookerSet = new Set();
+        USERS_DATABASE.forEach(u => {
+            if(u.bookerName && u.bookerName !== 'ALL' && u.bookerName !== 'CUSTOM') bookerSet.add(u.bookerName.toUpperCase());
+        });
+        transactions.forEach(t => {
+            if(t.booker) bookerSet.add(t.booker.toUpperCase());
+        });
+
+        const sortedBookers = Array.from(bookerSet).sort((a,b) => a.localeCompare(b));
+        sortedBookers.forEach(b => {
+            select.innerHTML += `<option value="${b}">${b}</option>`;
+        });
+
+        if (selectedBooker) {
+            select.value = selectedBooker.toUpperCase();
+        }
+    }
+
+    function onCustomBookerSelectChange() {
+        const selectedBooker = document.getElementById('customBookerSelect').value;
+        populateShopsCheckboxes([], selectedBooker);
+    }
+
+    function filterShopsCheckboxes() {
+        const searchVal = cleanStr(document.getElementById('customShopSearchInput').value);
+        const items = document.querySelectorAll('#shopsCheckboxesList .shop-permission-item');
+        
+        items.forEach(item => {
+            const text = cleanStr(item.innerText);
+            if (text.includes(searchVal)) {
+                item.style.display = 'flex';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    }
+
+    function populateShopsCheckboxes(selectedShopsList = [], filterByBooker = '') {
         const container = document.getElementById('shopsCheckboxesList');
         const allShopsSet = new Set();
 
+        const targetBooker = filterByBooker || document.getElementById('customBookerSelect').value;
+
         transactions.forEach(t => {
-            if (t.shop) allShopsSet.add(t.shop.toUpperCase());
+            if (t.shop) {
+                if (!targetBooker || cleanStr(t.booker) === cleanStr(targetBooker)) {
+                    allShopsSet.add(t.shop.toUpperCase());
+                }
+            }
         });
 
         const sortedShops = Array.from(allShopsSet).sort((a, b) => a.localeCompare(b));
@@ -1312,6 +1376,7 @@
         });
 
         container.innerHTML = html;
+        document.getElementById('customShopSearchInput').value = '';
     }
 
     function renderUsers() {
@@ -1329,7 +1394,7 @@
             let detailText = u.bookerName || '-';
             if (u.role === 'custom_booker') {
                 const count = (u.allowedShops || []).length;
-                detailText = `Custom Access (${count} Shops Allowed)`;
+                detailText = `Booker: <b>${u.bookerName || 'CUSTOM'}</b> (${count} Shops Allowed)`;
             }
 
             html += `
@@ -1374,12 +1439,14 @@
 
         let allowedShops = [];
         if (role === 'custom_booker') {
-            bName = 'CUSTOM';
+            bName = document.getElementById('customBookerSelect').value.trim().toUpperCase();
+            if(!bName) return alert('Please select a Booker for Custom Access User!');
+            
             const checkboxes = document.querySelectorAll('.user-allowed-shop-cb:checked');
             allowedShops = Array.from(checkboxes).map(cb => cb.value.toUpperCase());
         }
 
-        if(!uName || !pWord || (role !== 'custom_booker' && !bName)) return alert('Fill all required fields!');
+        if(!uName || !pWord || (!bName && role !== 'custom_booker')) return alert('Fill all required fields!');
 
         const userObj = { username: uName, password: pWord, role, bookerName: bName, allowedShops };
 
@@ -1413,7 +1480,8 @@
         
         toggleUserRoleFields();
         if (u.role === 'custom_booker') {
-            populateShopsCheckboxes(u.allowedShops || []);
+            populateCustomBookerDropdown(u.bookerName || '');
+            populateShopsCheckboxes(u.allowedShops || [], u.bookerName || '');
         }
 
         document.getElementById('saveUserBtn').innerText = 'Update User ✏️';
