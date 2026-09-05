@@ -125,10 +125,10 @@
         .bal-zero { color: #555; font-weight: bold; }
 
         .shop-permission-box {
-            border: 1px solid #ccc; border-radius: 5px; padding: 10px; max-height: 180px; overflow-y: auto; background: #fff; grid-column: 1 / -1;
+            border: 1px solid #ccc; border-radius: 5px; padding: 10px; max-height: 220px; overflow-y: auto; background: #fff; grid-column: 1 / -1;
         }
         .shop-permission-item {
-            display: flex; align-items: center; gap: 8px; font-size: 13px; padding: 3px 0;
+            display: flex; align-items: center; gap: 8px; font-size: 13px; padding: 4px 0; border-bottom: 1px dashed #eee;
         }
 
         @media (max-width: 768px) {
@@ -206,7 +206,7 @@
 
     <div class="print-date-bar">
         <div>REPORT TYPE: <span id="reportTypeLabel">General Statement</span></div>
-        <div>DATA UPDATED UPTO: <span id="asOfDateLabel">--</span></div>
+        <div>LIVE TIME & DATE: <span id="liveDateTimeLabel" style="color: #007bff; margin-right: 15px;">--</span> DATA UPDATED UPTO: <span id="asOfDateLabel">--</span></div>
     </div>
     
     <div class="tabs no-print">
@@ -310,6 +310,7 @@
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 10px;">
             <h3>Transactions Record</h3>
             <div class="no-print" style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                <button class="btn-add" style="grid-column: auto; background: #6c757d; padding: 7px 12px; font-size: 13px;" onclick="window.print()">Print Report 🖨️</button>
                 <button class="btn-delete" onclick="deleteSelectedEntries()" style="padding: 7px 12px; font-weight: bold;">Delete Selected Entries 🗑️</button>
                 <label style="font-size: 13px; font-weight: bold;">Show Entries:</label>
                 <select id="entryLimitSelect" onchange="renderTransactions()" style="padding: 6px 10px; width: auto;">
@@ -490,6 +491,15 @@
             </div>
 
             <div class="form-group" id="allowedShopsGroup" style="grid-column: 1 / -1; display: none;">
+                <label style="margin-bottom: 5px;">Filter Shops By Booker:</label>
+                <select id="filterBookerShopsDropdown" onchange="populateShopsCheckboxesByBooker(this.value)" style="margin-bottom: 10px;">
+                    <option value="ALL">-- Show All Bookers Shops --</option>
+                </select>
+
+                <div style="display: flex; gap: 8px; margin-bottom: 8px; align-items: center;">
+                    <input type="text" id="searchShopFilterInput" placeholder="🔍 Search shop name..." oninput="filterShopsInCheckboxList(this.value)">
+                </div>
+
                 <label>Select Allowed Shops (Check shops to show for this user):</label>
                 <div class="shop-permission-box" id="shopsCheckboxesList">
                 </div>
@@ -586,6 +596,20 @@
     let USERS_DATABASE = DEFAULT_USERS;
     let currentUser = JSON.parse(sessionStorage.getItem('pos_current_user')) || null;
     let transactions = DEFAULT_TRANSACTIONS;
+    let currentlySelectedUserShops = [];
+
+    // Live Clock functionality
+    function updateLiveClock() {
+        const now = new Date();
+        const dateStr = now.toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' });
+        const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+        const liveElem = document.getElementById('liveDateTimeLabel');
+        if (liveElem) {
+            liveElem.innerText = `${dateStr} - ${timeStr}`;
+        }
+    }
+    setInterval(updateLiveClock, 1000);
+    updateLiveClock();
 
     db.ref('pos_transactions').on('value', snapshot => {
         const val = snapshot.val();
@@ -654,7 +678,7 @@
 
         if(foundUser) {
             currentUser = foundUser;
-            sessionStorage.setItem('pos_current_user', JSON.stringify(currentUser));
+            sessionStorage.getItem('pos_current_user', JSON.stringify(currentUser));
             applyUserPermissions();
         } else {
             alert('Invalid Username or Password!');
@@ -683,8 +707,10 @@
 
         if(currentUser.role === 'admin') {
             document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'inline-block');
+            openTab('dashboard', document.getElementById('tabDashBtn'));
         } else {
             document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
+            openTab('bookerLedger', document.getElementById('tabBookerBtn'));
         }
     }
 
@@ -959,7 +985,9 @@
 
         const shopsSet = new Set();
         transactions.forEach(t => {
-            if(t.shop) shopsSet.add(t.shop.toUpperCase());
+            if(t.shop && isShopAllowedForUser(t.shop, t.booker)) {
+                shopsSet.add(t.shop.toUpperCase());
+            }
         });
 
         const sortedShops = Array.from(shopsSet).sort((a,b) => a.localeCompare(b));
@@ -1040,7 +1068,7 @@
         }
 
         if(currentUser && currentUser.role === 'custom_booker') {
-            select.innerHTML = `<option value="CUSTOM_USER">Custom Allowed Shops</option>`;
+            select.innerHTML = `<option value="CUSTOM_USER">${currentUser.username.toUpperCase()} (Custom Access)</option>`;
             select.value = "CUSTOM_USER";
             select.disabled = true;
             renderBookerDetail();
@@ -1274,26 +1302,44 @@
         if (role === 'custom_booker') {
             bookerGroup.style.display = 'none';
             shopsGroup.style.display = 'flex';
-            populateShopsCheckboxes();
-        } else if (role === 'admin') {
-            bookerGroup.style.display = 'flex';
-            shopsGroup.style.display = 'none';
+            populateFilterBookersDropdown();
+            populateShopsCheckboxesByBooker('ALL');
         } else {
             bookerGroup.style.display = 'flex';
             shopsGroup.style.display = 'none';
         }
     }
 
-    function populateShopsCheckboxes(selectedShopsList = []) {
-        const container = document.getElementById('shopsCheckboxesList');
-        const allShopsSet = new Set();
+    function populateFilterBookersDropdown() {
+        const bSelect = document.getElementById('filterBookerShopsDropdown');
+        if(!bSelect) return;
 
+        bSelect.innerHTML = '<option value="ALL">-- Show All Bookers Shops --</option>';
+        const bookerSet = new Set();
         transactions.forEach(t => {
-            if (t.shop) allShopsSet.add(t.shop.toUpperCase());
+            if(t.booker) bookerSet.add(t.booker.toUpperCase());
         });
 
-        const sortedShops = Array.from(allShopsSet).sort((a, b) => a.localeCompare(b));
-        const cleanSelected = selectedShopsList.map(s => cleanStr(s));
+        const sortedBookers = Array.from(bookerSet).sort((a,b) => a.localeCompare(b));
+        sortedBookers.forEach(b => {
+            bSelect.innerHTML += `<option value="${b}">${b}</option>`;
+        });
+    }
+
+    function populateShopsCheckboxesByBooker(selectedBookerFilter) {
+        const container = document.getElementById('shopsCheckboxesList');
+        const shopsMap = {};
+
+        transactions.forEach(t => {
+            if (t.shop) {
+                const sName = t.shop.toUpperCase();
+                const bName = t.booker ? t.booker.toUpperCase() : '';
+                shopsMap[sName] = bName;
+            }
+        });
+
+        const sortedShops = Object.keys(shopsMap).sort((a, b) => a.localeCompare(b));
+        const cleanSelected = currentlySelectedUserShops.map(s => cleanStr(s));
 
         if (sortedShops.length === 0) {
             container.innerHTML = '<span style="color:#888; font-size:12px;">No shops found in database.</span>';
@@ -1302,16 +1348,43 @@
 
         let html = '';
         sortedShops.forEach((shop, idx) => {
+            const shopBooker = shopsMap[shop];
+            if (selectedBookerFilter !== 'ALL' && cleanStr(shopBooker) !== cleanStr(selectedBookerFilter)) {
+                return;
+            }
+
             const isChecked = cleanSelected.includes(cleanStr(shop)) ? 'checked' : '';
             html += `
-                <div class="shop-permission-item">
-                    <input type="checkbox" class="user-allowed-shop-cb" value="${shop}" id="cb_shop_${idx}" ${isChecked}>
-                    <label for="cb_shop_${idx}" style="font-weight: normal; font-size: 13px;">${shop}</label>
+                <div class="shop-permission-item" data-shopname="${shop.toLowerCase()}">
+                    <input type="checkbox" class="user-allowed-shop-cb" value="${shop}" id="cb_shop_${idx}" ${isChecked} onchange="trackCheckedShop(this)">
+                    <label for="cb_shop_${idx}" style="font-weight: normal; font-size: 13px; flex: 1;">${shop} <small style="color:#888;">(${shopBooker})</small></label>
                 </div>
             `;
         });
 
-        container.innerHTML = html;
+        container.innerHTML = html || '<span style="color:#888; font-size:12px;">No shops match filter.</span>';
+    }
+
+    function trackCheckedShop(cb) {
+        const val = cb.value.toUpperCase();
+        if (cb.checked) {
+            if (!currentlySelectedUserShops.includes(val)) currentlySelectedUserShops.push(val);
+        } else {
+            currentlySelectedUserShops = currentlySelectedUserShops.filter(s => s !== val);
+        }
+    }
+
+    function filterShopsInCheckboxList(searchTerm) {
+        const term = cleanStr(searchTerm);
+        const items = document.querySelectorAll('.shop-permission-item');
+        items.forEach(item => {
+            const shopName = item.getAttribute('data-shopname');
+            if (shopName.includes(term)) {
+                item.style.display = 'flex';
+            } else {
+                item.style.display = 'none';
+            }
+        });
     }
 
     function renderUsers() {
@@ -1375,8 +1448,7 @@
         let allowedShops = [];
         if (role === 'custom_booker') {
             bName = 'CUSTOM';
-            const checkboxes = document.querySelectorAll('.user-allowed-shop-cb:checked');
-            allowedShops = Array.from(checkboxes).map(cb => cb.value.toUpperCase());
+            allowedShops = [...currentlySelectedUserShops];
         }
 
         if(!uName || !pWord || (role !== 'custom_booker' && !bName)) return alert('Fill all required fields!');
@@ -1400,6 +1472,7 @@
         document.getElementById('newPassword').value = '';
         document.getElementById('newBookerName').value = '';
         document.getElementById('newUserRole').value = 'booker';
+        currentlySelectedUserShops = [];
         toggleUserRoleFields();
     }
 
@@ -1411,10 +1484,9 @@
         document.getElementById('newBookerName').value = u.bookerName || '';
         document.getElementById('editUserIndex').value = index;
         
+        currentlySelectedUserShops = u.allowedShops ? [...u.allowedShops] : [];
+
         toggleUserRoleFields();
-        if (u.role === 'custom_booker') {
-            populateShopsCheckboxes(u.allowedShops || []);
-        }
 
         document.getElementById('saveUserBtn').innerText = 'Update User ✏️';
         document.getElementById('userFormTitle').innerText = '✏️ Edit User Details';
