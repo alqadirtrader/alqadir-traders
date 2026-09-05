@@ -3,7 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Al Qadir Traders - Market Credit Ledger System</title>
+    <title>🟢 Al Qadir Traders - Market Credit Ledger System</title>
+    <!-- Dynamic Green Favicon for Browser Tab -->
+    <link id="dynamicFavicon" rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='45' fill='%2328a745'/></svg>">
+    
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Montserrat:wght@800;900&family=Noto+Nastaliq+Urdu:wght@700&family=Amiri:wght@700&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
@@ -33,6 +36,16 @@
         .btn-login:hover { background: #b00e17; }
         .user-info-bar { display: flex; justify-content: space-between; align-items: center; background: #eef2f5; padding: 10px 15px; border-radius: 6px; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
         
+        .status-dot {
+            height: 10px; width: 10px; background-color: #28a745; border-radius: 50%; display: inline-block;
+            box-shadow: 0 0 8px #28a745; margin-right: 5px; animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(40, 167, 69, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(40, 167, 69, 0); }
+        }
+
         .brand-header-custom {
             display: flex; justify-content: space-between; align-items: center;
             padding: 15px 20px; border-bottom: 4px solid #d1121d; margin-bottom: 15px; position: relative; flex-wrap: wrap; gap: 10px;
@@ -183,6 +196,9 @@
         <div>
             👤 Logged User: <strong id="loggedUsername">-</strong> 
             <span id="userRoleBadge" style="background: #007bff; color: white; padding: 2px 8px; border-radius: 10px; font-size: 12px; margin-left: 5px;">Admin</span>
+            <span style="margin-left: 15px; font-size: 12px; font-weight: bold; color: #28a745;">
+                <span class="status-dot"></span> System Connected
+            </span>
         </div>
         <button class="btn-logout" onclick="logout()">Logout</button>
     </div>
@@ -287,11 +303,11 @@
             </div>
             <div class="form-group">
                 <label>Credit <span class="required-star">*</span>:</label>
-                <input type="number" id="creditVal" value="0" required>
+                <input type="number" id="creditVal" placeholder="0" required>
             </div>
             <div class="form-group">
                 <label>Recovery <span class="required-star">*</span>:</label>
-                <input type="number" id="recoveryVal" value="0" required>
+                <input type="number" id="recoveryVal" placeholder="0" required>
             </div>
             <button type="button" class="btn-add" id="saveBtn" onclick="addTransaction()">Save Entry</button>
         </form>
@@ -583,6 +599,25 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
+    // Function to play Entry Sound (Beep)
+    function playEntrySound() {
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(880, ctx.currentTime); // High pitch notification tone
+            gain.gain.setValueAtTime(0.15, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.25);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start();
+            osc.stop(ctx.currentTime + 0.25);
+        } catch(e) {
+            console.log("Audio play blocked by browser setup", e);
+        }
+    }
+
     const DEFAULT_USERS = [
         { username: "admin", password: "adnan1414", role: "admin", bookerName: "ALL", allowedShops: [] },
         { username: "arsalan", password: "123", role: "booker", bookerName: "ARSALAN", allowedShops: [] },
@@ -600,7 +635,6 @@
     let transactions = DEFAULT_TRANSACTIONS;
     let currentlySelectedUserShops = [];
 
-    // Live Clock functionality
     function updateLiveClock() {
         const now = new Date();
         const dateStr = now.toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' });
@@ -613,7 +647,8 @@
     setInterval(updateLiveClock, 1000);
     updateLiveClock();
 
-    db.ref('pos_transactions').on('value', snapshot => {
+    // optimized single fetch on load
+    db.ref('pos_transactions').once('value', snapshot => {
         const val = snapshot.val();
         if (val) {
             transactions = Array.isArray(val) ? val : Object.values(val);
@@ -626,7 +661,7 @@
         refreshCurrentTab();
     });
 
-    db.ref('pos_users_db').on('value', snapshot => {
+    db.ref('pos_users_db').once('value', snapshot => {
         const val = snapshot.val();
         if (val) {
             USERS_DATABASE = Array.isArray(val) ? val : Object.values(val);
@@ -831,12 +866,19 @@
             transactions.push(txObj);
         }
 
+        // Play Beep Sound on Save
+        playEntrySound();
+
+        // Instantly UI render locally
+        renderTransactions();
+        
+        // Save background without freeze
         saveTransactionsToCloud();
 
         document.getElementById('shopName').value = '';
         document.getElementById('refNo').value = '';
-        document.getElementById('creditVal').value = '0';
-        document.getElementById('recoveryVal').value = '0';
+        document.getElementById('creditVal').value = '';
+        document.getElementById('recoveryVal').value = '';
         populateShopSuggestions();
     }
 
@@ -874,6 +916,8 @@
                 }
 
                 if(addedCount > 0) {
+                    playEntrySound();
+                    renderTransactions();
                     saveTransactionsToCloud();
                     alert(`Success! ${addedCount} CSV entries uploaded successfully.`);
                 } else {
@@ -938,6 +982,7 @@
             selectedIndices.forEach(idx => {
                 transactions.splice(idx, 1);
             });
+            renderTransactions();
             saveTransactionsToCloud();
             alert(`Selected ${selectedIndices.length} entries deleted successfully!`);
         }
@@ -950,8 +995,8 @@
         populateShopSuggestions();
         document.getElementById('shopName').value = t.shop;
         document.getElementById('refNo').value = t.ref;
-        document.getElementById('creditVal').value = t.credit;
-        document.getElementById('recoveryVal').value = t.recovery;
+        document.getElementById('creditVal').value = t.credit || '';
+        document.getElementById('recoveryVal').value = t.recovery || '';
         document.getElementById('editIndex').value = index;
         document.getElementById('saveBtn').innerText = 'Update Entry';
         document.getElementById('formTitle').innerText = 'Edit Entry';
@@ -961,6 +1006,7 @@
     function deleteTx(index) {
         if(confirm('Are you sure you want to delete this entry?')) {
             transactions.splice(index, 1);
+            renderTransactions();
             saveTransactionsToCloud();
         }
     }
@@ -1081,7 +1127,6 @@
             if(cleanStr(t.shop).includes(query) && (!toDate || t.date <= toDate)) {
                 if(!isShopAllowedForUser(t.shop, t.booker)) continue;
 
-                // Pichla remaining balance + Credit - Recovery = New Remaining/Running Balance
                 runningBal += (t.credit - t.recovery);
 
                 html += `
@@ -1288,6 +1333,7 @@
             const initialLen = transactions.length;
             transactions = transactions.filter(t => !selectedShops.includes(cleanStr(t.shop)));
             const deletedEntries = initialLen - transactions.length;
+            renderShops();
             saveTransactionsToCloud();
             alert(`Selected shops deleted successfully! (${deletedEntries} total transaction entries removed).`);
         }
@@ -1308,6 +1354,7 @@
         }
 
         if (updatedCount > 0) {
+            renderShops();
             saveTransactionsToCloud();
             alert(`Success! "${oldShopName}" name changed to "${cleanNewName}" in ${updatedCount} entries.`);
         }
@@ -1318,6 +1365,7 @@
             const initialLen = transactions.length;
             transactions = transactions.filter(t => cleanStr(t.shop) !== cleanStr(shopName));
             const deletedEntries = initialLen - transactions.length;
+            renderShops();
             saveTransactionsToCloud();
             alert(`"${shopName}" removed! (${deletedEntries} transaction entries deleted).`);
         }
@@ -1343,6 +1391,7 @@
             }
         }
 
+        renderShops();
         saveTransactionsToCloud();
         alert(`Success! "${shopName}" with ${count} entries has been transferred to ${newBooker}.`);
     }
@@ -1519,6 +1568,7 @@
             alert('User Created Successfully!');
         }
 
+        renderUsers();
         saveUsersToCloud();
         
         document.getElementById('newUsername').value = '';
@@ -1549,6 +1599,7 @@
     function deleteUser(index) {
         if(confirm('Are you sure you want to delete this user?')) {
             USERS_DATABASE.splice(index, 1);
+            renderUsers();
             saveUsersToCloud();
         }
     }
@@ -1608,6 +1659,7 @@
                     USERS_DATABASE = imported.users;
                     saveUsersToCloud();
                 }
+                refreshCurrentTab();
                 alert('Restored Successfully!');
             } catch(err) { alert('Invalid File!'); }
         };
