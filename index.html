@@ -239,14 +239,10 @@
     <div id="dashboard" class="tab-content active admin-only-content">
         <div class="filter-box no-print" style="margin-bottom: 15px;">
             <div style="display: flex; align-items: center; gap: 5px;">
-                <label style="font-size: 12px; font-weight: bold;">From Date:</label>
-                <input type="date" id="dashFromDate" onchange="renderDashboard()" style="width: auto;">
-            </div>
-            <div style="display: flex; align-items: center; gap: 5px;">
-                <label style="font-size: 12px; font-weight: bold;">To Date:</label>
+                <label style="font-size: 12px; font-weight: bold;">As On Date:</label>
                 <input type="date" id="dashToDate" onchange="renderDashboard()" style="width: auto;">
             </div>
-            <button class="btn-add" style="grid-column: auto; padding: 7px 12px; font-size: 12px;" onclick="clearDashDateFilter()">Reset Dates 🔄</button>
+            <button class="btn-add" style="grid-column: auto; padding: 7px 12px; font-size: 12px;" onclick="clearDashDateFilter()">Reset Date 🔄</button>
         </div>
 
         <div class="summary-card">
@@ -342,11 +338,7 @@
             <h3>Transactions Record</h3>
             <div class="no-print" style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
                 <div style="display: flex; align-items: center; gap: 5px;">
-                    <label style="font-size: 12px; font-weight: bold;">From:</label>
-                    <input type="date" id="entryFromDate" onchange="renderTransactions()" style="width: auto; padding: 5px;">
-                </div>
-                <div style="display: flex; align-items: center; gap: 5px;">
-                    <label style="font-size: 12px; font-weight: bold;">To:</label>
+                    <label style="font-size: 12px; font-weight: bold;">As On Date:</label>
                     <input type="date" id="entryToDate" onchange="renderTransactions()" style="width: auto; padding: 5px;">
                 </div>
                 <button class="btn-add" style="grid-column: auto; background: #6c757d; padding: 7px 12px; font-size: 13px;" onclick="window.print()">Print Report 🖨️</button>
@@ -391,11 +383,7 @@
             </select>
             <input type="text" id="searchShopInput" placeholder="Type or Select Shop Name..." style="flex: 2; min-width: 150px;" oninput="renderLedger()">
             <div style="display: flex; align-items: center; gap: 5px;">
-                <label style="font-size: 12px; font-weight: bold;">From Date:</label>
-                <input type="date" id="ledgerFromDate" onchange="renderLedger()" style="width: auto;">
-            </div>
-            <div style="display: flex; align-items: center; gap: 5px;">
-                <label style="font-size: 12px; font-weight: bold;">To Date:</label>
+                <label style="font-size: 12px; font-weight: bold;">As On Date:</label>
                 <input type="date" id="ledgerToDate" onchange="renderLedger()" style="width: auto;">
             </div>
             <button class="btn-add" style="grid-column: auto; padding: 9px 15px; font-size: 13px;" onclick="renderLedger()">View Ledger</button>
@@ -439,11 +427,7 @@
                 <option value="">-- Select Order Booker --</option>
             </select>
             <div style="display: flex; align-items: center; gap: 5px;">
-                <label style="font-size: 12px; font-weight: bold;">From Date:</label>
-                <input type="date" id="bookerFromDate" onchange="renderBookerDetail()" style="width: auto;">
-            </div>
-            <div style="display: flex; align-items: center; gap: 5px;">
-                <label style="font-size: 12px; font-weight: bold;">To Date:</label>
+                <label style="font-size: 12px; font-weight: bold;">As On Date:</label>
                 <input type="date" id="bookerToDate" onchange="renderBookerDetail()" style="width: auto;">
             </div>
             <label class="checkbox-label">
@@ -485,11 +469,7 @@
         <div class="filter-box no-print">
             <div style="flex: 1; font-weight: bold; font-size: 14px;">Shops Directory & Balances</div>
             <div style="display: flex; align-items: center; gap: 5px;">
-                <label style="font-size: 12px; font-weight: bold;">From Date:</label>
-                <input type="date" id="shopsFromDate" onchange="renderShops()" style="width: auto;">
-            </div>
-            <div style="display: flex; align-items: center; gap: 5px;">
-                <label style="font-size: 12px; font-weight: bold;">To Date:</label>
+                <label style="font-size: 12px; font-weight: bold;">As On Date:</label>
                 <input type="date" id="shopsToDate" onchange="renderShops()" style="width: auto;">
             </div>
             <label class="checkbox-label">
@@ -964,11 +944,9 @@
         updateAsOfLabel('Daily Entry Log');
         const tbody = document.getElementById('transactionTable');
         const limitVal = document.getElementById('entryLimitSelect').value;
-        const fromDate = document.getElementById('entryFromDate').value;
         const toDate = document.getElementById('entryToDate').value;
 
         let filtered = transactions.filter(t => {
-            if (fromDate && t.date < fromDate) return false;
             if (toDate && t.date > toDate) return false;
             return true;
         });
@@ -1050,14 +1028,12 @@
     }
 
     function clearDashDateFilter() {
-        document.getElementById('dashFromDate').value = '';
         document.getElementById('dashToDate').value = '';
         renderDashboard();
     }
 
     function renderDashboard() {
         updateAsOfLabel('Dashboard Overview');
-        const fromDate = document.getElementById('dashFromDate').value;
         const toDate = document.getElementById('dashToDate').value;
 
         const bookerMap = {};
@@ -1067,7 +1043,6 @@
         for(let i = 0; i < transactions.length; i++) {
             const t = transactions[i];
 
-            if (fromDate && t.date < fromDate) continue;
             if (toDate && t.date > toDate) continue;
 
             const b = t.booker ? t.booker.toUpperCase() : '';
@@ -1154,12 +1129,8 @@
         renderLedger();
     }
 
-    // ==========================================
-    // UPDATED & FIXED LEDGER FUNCTION (FOR CSV & EMPTY FROM-DATE)
-    // ==========================================
     function renderLedger() {
         const query = cleanStr(document.getElementById('searchShopInput').value);
-        const fromDate = document.getElementById('ledgerFromDate').value;
         const toDate = document.getElementById('ledgerToDate').value;
         const tbody = document.getElementById('ledgerTable');
 
@@ -1177,42 +1148,13 @@
         let html = '';
         let sno = 1;
 
-        // 1. Calculate Opening Balance ONLY IF From Date exists and is not empty
-        if (fromDate && fromDate.trim() !== '') {
-            for (let i = 0; i < transactions.length; i++) {
-                const t = transactions[i];
-                if (cleanStr(t.shop).includes(query)) {
-                    if (!isShopAllowedForUser(t.shop, t.booker)) continue;
-                    if (t.date < fromDate) {
-                        runningBal += (t.credit - t.recovery);
-                    }
-                }
-            }
-
-            // Render Opening Balance Row
-            html += `
-                <tr style="background-color: #e9ecef; font-weight: bold;">
-                    <td class="text-center">-</td>
-                    <td class="text-center">${fromDate}</td>
-                    <td class="text-left" colspan="2"><strong>OPENING BALANCE (SABQA)</strong></td>
-                    <td class="text-right">-</td>
-                    <td class="text-right">-</td>
-                    <td class="text-right">${formatBalance(runningBal)}</td>
-                </tr>
-            `;
-        }
-
-        // 2. Loop through transactions for display
         for(let i = 0; i < transactions.length; i++) {
             const t = transactions[i];
 
             if(cleanStr(t.shop).includes(query)) {
                 if(!isShopAllowedForUser(t.shop, t.booker)) continue;
-
-                // Skip entries before From Date if From Date is specified
-                if (fromDate && fromDate.trim() !== '' && t.date < fromDate) continue;
                 
-                // Skip entries after To Date if To Date is specified
+                // Skip entries after As On Date if Date is specified
                 if (toDate && toDate.trim() !== '' && t.date > toDate) continue;
 
                 runningBal += (t.credit - t.recovery);
@@ -1273,7 +1215,6 @@
             bSelect = cleanStr(currentUser.bookerName);
         }
 
-        const fromDate = document.getElementById('bookerFromDate').value;
         const toDate = document.getElementById('bookerToDate').value;
         const hideZero = document.getElementById('hideZeroBooker').checked;
         const tbody = document.getElementById('bookerShopsTable');
@@ -1295,7 +1236,6 @@
             if(isMatch) {
                 if(!isShopAllowedForUser(t.shop, t.booker)) continue;
 
-                if (fromDate && t.date < fromDate) continue;
                 if (toDate && t.date > toDate) continue;
 
                 const sName = t.shop.toUpperCase();
@@ -1334,7 +1274,6 @@
 
     function renderShops() {
         updateAsOfLabel('Shops Directory & Balances');
-        const fromDate = document.getElementById('shopsFromDate').value;
         const toDate = document.getElementById('shopsToDate').value;
         const hideZero = document.getElementById('hideZeroShops').checked;
         const tbody = document.getElementById('shopsTable');
@@ -1350,7 +1289,6 @@
         for(let i = 0; i < transactions.length; i++) {
             const t = transactions[i];
 
-            if (fromDate && t.date < fromDate) continue;
             if (toDate && t.date > toDate) continue;
 
             const sName = t.shop.toUpperCase();
