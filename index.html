@@ -633,17 +633,13 @@
         }
     }
 
+    // Default Admin User Only
     const DEFAULT_USERS = [
-        { username: "admin", password: "adnan1414", role: "admin", bookerName: "ALL", allowedShops: [] },
-        { username: "arsalan", password: "123", role: "booker", bookerName: "ARSALAN", allowedShops: [] },
-        { username: "waqas", password: "123", role: "booker", bookerName: "WAQAS", allowedShops: [] },
-        { username: "inaam", password: "123", role: "booker", bookerName: "INAAM", allowedShops: [] }
+        { username: "admin", password: "adnan1414", role: "admin", bookerName: "ALL", allowedShops: [] }
     ];
 
-    const DEFAULT_TRANSACTIONS = [
-        { date: "2026-08-01", booker: "ARSALAN", shop: "AL MADINA STORE", ref: "INV-101", credit: 5000, recovery: 2000 },
-        { date: "2026-08-02", booker: "INAAM", shop: "KHAN TRADERS", ref: "INV-102", credit: 8000, recovery: 0 }
-    ];
+    // Empty Default Transactions
+    const DEFAULT_TRANSACTIONS = [];
 
     let USERS_DATABASE = DEFAULT_USERS;
     let currentUser = JSON.parse(sessionStorage.getItem('pos_current_user')) || null;
@@ -1154,7 +1150,6 @@
             if(cleanStr(t.shop).includes(query)) {
                 if(!isShopAllowedForUser(t.shop, t.booker)) continue;
                 
-                // Skip entries after As On Date if Date is specified
                 if (toDate && toDate.trim() !== '' && t.date > toDate) continue;
 
                 runningBal += (t.credit - t.recovery);
