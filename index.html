@@ -616,6 +616,18 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
+    function parseFormattedDate(dateStr) {
+        if (!dateStr) return new Date(0);
+        let parts = dateStr.toString().trim().split('-');
+        if (parts.length === 3) {
+            let day = parseInt(parts[0], 10);
+            let month = parseInt(parts[1], 10) - 1;
+            let year = parseInt(parts[2], 10);
+            return new Date(year, month, day);
+        }
+        return new Date(dateStr);
+    }
+
     function normalizeDate(input) {
         if (!input) return '';
         let str = input.toString().trim().replace(/[/.]/g, '-');
@@ -737,7 +749,7 @@
     function updateAsOfLabel(type) {
         document.getElementById('reportTypeLabel').innerText = type;
         if(transactions.length > 0) {
-            const sorted = [...transactions].sort((a,b) => a.date.localeCompare(b.date));
+            const sorted = [...transactions].sort((a,b) => parseFormattedDate(a.date) - parseFormattedDate(b.date));
             const maxDate = sorted[sorted.length - 1].date;
             document.getElementById('asOfDateLabel').innerText = maxDate || "--";
         } else {
@@ -992,10 +1004,13 @@
         const tbody = document.getElementById('transactionTable');
         const limitVal = document.getElementById('entryLimitSelect').value;
         const rawToDate = document.getElementById('entryToDate').value;
-        const toDate = normalizeDate(rawToDate);
+        const toDateObj = rawToDate ? parseFormattedDate(normalizeDate(rawToDate)) : null;
 
         let filtered = transactions.filter(t => {
-            if (toDate && t.date > toDate) return false;
+            if (toDateObj) {
+                let tDateObj = parseFormattedDate(t.date);
+                if (tDateObj > toDateObj) return false;
+            }
             return true;
         });
         
@@ -1083,7 +1098,7 @@
     function renderDashboard() {
         updateAsOfLabel('Dashboard Overview');
         const rawToDate = document.getElementById('dashToDate').value;
-        const toDate = normalizeDate(rawToDate);
+        const toDateObj = rawToDate ? parseFormattedDate(normalizeDate(rawToDate)) : null;
 
         const bookerMap = {};
         const shopBalMap = {};
@@ -1092,7 +1107,10 @@
         for(let i = 0; i < transactions.length; i++) {
             const t = transactions[i];
 
-            if (toDate && t.date > toDate) continue;
+            if (toDateObj) {
+                let tDateObj = parseFormattedDate(t.date);
+                if (tDateObj > toDateObj) continue;
+            }
 
             const b = t.booker ? t.booker.toUpperCase() : '';
             const s = t.shop ? t.shop.toUpperCase() : '';
@@ -1182,8 +1200,13 @@
         const query = cleanStr(document.getElementById('searchShopInput').value);
         const rawFromDate = document.getElementById('ledgerFromDate') ? document.getElementById('ledgerFromDate').value : '';
         const rawToDate = document.getElementById('ledgerToDate') ? document.getElementById('ledgerToDate').value : '';
-        const fromDate = normalizeDate(rawFromDate);
-        const toDate = normalizeDate(rawToDate);
+        
+        const fromDateFormatted = rawFromDate ? normalizeDate(rawFromDate) : '';
+        const toDateFormatted = rawToDate ? normalizeDate(rawToDate) : '';
+        
+        const fromDateObj = fromDateFormatted ? parseFormattedDate(fromDateFormatted) : null;
+        const toDateObj = toDateFormatted ? parseFormattedDate(toDateFormatted) : null;
+        
         const tbody = document.getElementById('ledgerTable');
 
         if(!query) {
@@ -1200,15 +1223,24 @@
         let html = '';
         let sno = 1;
 
-        let sortedTx = [...transactions].sort((a, b) => a.date.localeCompare(b.date));
+        // Preserve original index for stable same-date sequence
+        let sortedTx = transactions.map((t, originalIndex) => ({ ...t, originalIndex })).sort((a, b) => {
+            let dateA = parseFormattedDate(a.date);
+            let dateB = parseFormattedDate(b.date);
+            if (dateA.getTime() !== dateB.getTime()) {
+                return dateA - dateB;
+            }
+            return a.originalIndex - b.originalIndex;
+        });
 
-        if (fromDate) {
+        if (fromDateObj) {
             let openingBal = 0;
             for(let i = 0; i < sortedTx.length; i++) {
                 const t = sortedTx[i];
                 if(cleanStr(t.shop).includes(query)) {
                     if(!isShopAllowedForUser(t.shop, t.booker)) continue;
-                    if(t.date < fromDate) {
+                    let tDateObj = parseFormattedDate(t.date);
+                    if(tDateObj < fromDateObj) {
                         openingBal += (t.credit - t.recovery);
                     }
                 }
@@ -1217,8 +1249,8 @@
             html += `
                 <tr style="background-color: #fff3cd; font-weight: bold;">
                     <td class="text-center">-</td>
-                    <td class="text-center">${fromDate}</td>
-                    <td class="text-left" colspan="2"><strong>OPENING BALANCE (Before ${fromDate})</strong></td>
+                    <td class="text-center">${fromDateFormatted}</td>
+                    <td class="text-left" colspan="2"><strong>OPENING BALANCE (Before ${fromDateFormatted})</strong></td>
                     <td class="text-right">-</td>
                     <td class="text-right">-</td>
                     <td class="text-right">${formatBalance(runningBal)}</td>
@@ -1232,8 +1264,9 @@
             if(cleanStr(t.shop).includes(query)) {
                 if(!isShopAllowedForUser(t.shop, t.booker)) continue;
                 
-                if (fromDate && t.date < fromDate) continue;
-                if (toDate && t.date > toDate) continue;
+                let tDateObj = parseFormattedDate(t.date);
+                if (fromDateObj && tDateObj < fromDateObj) continue;
+                if (toDateObj && tDateObj > toDateObj) continue;
 
                 runningBal += (t.credit - t.recovery);
 
@@ -1294,7 +1327,7 @@
         }
 
         const rawToDate = document.getElementById('bookerToDate').value;
-        const toDate = normalizeDate(rawToDate);
+        const toDateObj = rawToDate ? parseFormattedDate(normalizeDate(rawToDate)) : null;
         const hideZero = document.getElementById('hideZeroBooker').checked;
         const tbody = document.getElementById('bookerShopsTable');
 
@@ -1315,7 +1348,10 @@
             if(isMatch) {
                 if(!isShopAllowedForUser(t.shop, t.booker)) continue;
 
-                if (toDate && t.date > toDate) continue;
+                if (toDateObj) {
+                    let tDateObj = parseFormattedDate(t.date);
+                    if (tDateObj > toDateObj) continue;
+                }
 
                 const sName = t.shop.toUpperCase();
                 if(!shopSummary[sName]) shopSummary[sName] = { credit: 0, recovery: 0 };
@@ -1354,7 +1390,7 @@
     function renderShops() {
         updateAsOfLabel('Shops Directory & Balances');
         const rawToDate = document.getElementById('shopsToDate').value;
-        const toDate = normalizeDate(rawToDate);
+        const toDateObj = rawToDate ? parseFormattedDate(normalizeDate(rawToDate)) : null;
         const hideZero = document.getElementById('hideZeroShops').checked;
         const tbody = document.getElementById('shopsTable');
         const shopsMap = {};
@@ -1369,7 +1405,10 @@
         for(let i = 0; i < transactions.length; i++) {
             const t = transactions[i];
 
-            if (toDate && t.date > toDate) continue;
+            if (toDateObj) {
+                let tDateObj = parseFormattedDate(t.date);
+                if (tDateObj > toDateObj) continue;
+            }
 
             const sName = t.shop.toUpperCase();
             const bName = t.booker.toUpperCase();
