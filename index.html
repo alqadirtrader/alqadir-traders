@@ -195,7 +195,7 @@
     <div class="user-info-bar no-print">
         <div>
             👤 Logged User: <strong id="loggedUsername">-</strong> 
-            <span id="userRoleBadge" style="background: #007bff; color: white; padding: 2px 8px; border-radius: 10px; font-size: 12px; margin-left: 5px;">Admin</span>
+            <span id="userRoleBadge" style="background: #007bff; color: white; padding: 2px 8px; border-radius: 10px; font-size: 12px; margin-left: 5px; display: none;"></span>
             <span style="margin-left: 15px; font-size: 12px; font-weight: bold; color: #28a745;">
                 <span class="status-dot"></span> System Connected
             </span>
@@ -823,20 +823,23 @@
         document.getElementById('loginOverlay').style.display = 'none';
         document.getElementById('loggedUsername').innerText = currentUser.username.toUpperCase();
         
-        let roleBadgeText = 'Admin';
-        if(currentUser.role === 'booker') roleBadgeText = 'Booker (View Only)';
-        if(currentUser.role === 'custom_booker') roleBadgeText = 'Custom Access Booker';
-        document.getElementById('userRoleBadge').innerText = roleBadgeText;
+        const badgeElem = document.getElementById('userRoleBadge');
 
         if(currentUser.role === 'admin') {
+            badgeElem.style.display = 'inline-block';
+            badgeElem.innerText = 'Admin';
             document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'inline-block');
             document.querySelector('.dashboard-tab-btn').style.display = 'inline-block';
             openTab('dashboard', document.getElementById('tabDashBtn'));
         } else if(currentUser.role === 'custom_booker') {
+            badgeElem.style.display = 'none';
+            badgeElem.innerText = '';
             document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
             document.querySelector('.dashboard-tab-btn').style.display = 'inline-block';
             openTab('dashboard', document.getElementById('tabDashBtn'));
         } else {
+            badgeElem.style.display = 'inline-block';
+            badgeElem.innerText = 'Booker (View Only)';
             document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
             document.querySelector('.dashboard-tab-btn').style.display = 'none';
             openTab('bookerLedger', document.getElementById('tabBookerBtn'));
