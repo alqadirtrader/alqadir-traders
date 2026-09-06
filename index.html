@@ -635,7 +635,6 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // Function to play Entry Sound (Beep)
     function playEntrySound() {
         try {
             const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -1155,6 +1154,9 @@
         renderLedger();
     }
 
+    // ==========================================
+    // UPDATED LEDGER FUNCTION WITH OPENING BALANCE & AS-OF DATE
+    // ==========================================
     function renderLedger() {
         const query = cleanStr(document.getElementById('searchShopInput').value);
         const fromDate = document.getElementById('ledgerFromDate').value;
@@ -1170,17 +1172,47 @@
 
         let displayShopName = document.getElementById('searchShopInput').value.toUpperCase();
         document.getElementById('ledgerShopName').innerText = displayShopName;
+        
         let runningBal = 0;
         let html = '';
         let sno = 1;
 
+        // 1. Calculate Opening Balance if From Date is specified
+        if (fromDate) {
+            for (let i = 0; i < transactions.length; i++) {
+                const t = transactions[i];
+                if (cleanStr(t.shop).includes(query)) {
+                    if (!isShopAllowedForUser(t.shop, t.booker)) continue;
+                    if (t.date < fromDate) {
+                        runningBal += (t.credit - t.recovery);
+                    }
+                }
+            }
+
+            // Render Opening Balance Row
+            html += `
+                <tr style="background-color: #e9ecef; font-weight: bold;">
+                    <td class="text-center">-</td>
+                    <td class="text-center">${fromDate}</td>
+                    <td class="text-left" colspan="2"><strong>OPENING BALANCE (SABQA)</strong></td>
+                    <td class="text-right">-</td>
+                    <td class="text-right">-</td>
+                    <td class="text-right">${formatBalance(runningBal)}</td>
+                </tr>
+            `;
+        }
+
+        // 2. Loop through transactions for display
         for(let i = 0; i < transactions.length; i++) {
             const t = transactions[i];
 
             if(cleanStr(t.shop).includes(query)) {
                 if(!isShopAllowedForUser(t.shop, t.booker)) continue;
 
+                // Skip entries before From Date (already added in Opening Balance)
                 if (fromDate && t.date < fromDate) continue;
+                
+                // Skip entries after To Date (Shows balance UP TO To Date)
                 if (toDate && t.date > toDate) continue;
 
                 runningBal += (t.credit - t.recovery);
