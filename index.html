@@ -6,32 +6,113 @@
     <title>🟢 Al Qadir Traders - Market Credit Ledger System</title>
     <link id="dynamicFavicon" rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='45' fill='%2328a745'/></svg>">
     
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Montserrat:wght@800;900&family=Noto+Nastaliq+Urdu:wght@700&family=Amiri:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Montserrat:wght@400;600;800;900&family=Noto+Nastaliq+Urdu:wght@700&family=Amiri:wght@700&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background-color: #f4f6f9; margin: 0; padding: 15px; direction: ltr; text-align: left; }
         .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         
+        /* ================= COCA-COLA ANIMATED LOGIN OVERLAY ================= */
         #loginOverlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85); display: flex; justify-content: center; align-items: center;
-            z-index: 9999; padding: 15px;
+            background: linear-gradient(135deg, #0a0000 0%, #3a0003 50%, #8a0008 100%);
+            display: flex; justify-content: center; align-items: center;
+            z-index: 9999; padding: 15px; overflow: hidden;
         }
+
+        /* Video / Cola Bubbles Animation Effect */
+        .cola-bg-animation {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            overflow: hidden; z-index: 1; pointer-events: none;
+        }
+        .bubble {
+            position: absolute; bottom: -50px; background: rgba(255, 255, 255, 0.15);
+            border-radius: 50%; animation: rise 8s infinite ease-in-out;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+        }
+        .bubble:nth-child(1) { width: 40px; height: 40px; left: 10%; animation-duration: 6s; animation-delay: 0s; }
+        .bubble:nth-child(2) { width: 20px; height: 20px; left: 20%; animation-duration: 9s; animation-delay: 1s; }
+        .bubble:nth-child(3) { width: 50px; height: 50px; left: 35%; animation-duration: 7s; animation-delay: 2s; }
+        .bubble:nth-child(4) { width: 15px; height: 15px; left: 50%; animation-duration: 11s; animation-delay: 0s; }
+        .bubble:nth-child(5) { width: 35px; height: 35px; left: 65%; animation-duration: 8s; animation-delay: 3s; }
+        .bubble:nth-child(6) { width: 25px; height: 25px; left: 80%; animation-duration: 10s; animation-delay: 1.5s; }
+        .bubble:nth-child(7) { width: 45px; height: 45px; left: 90%; animation-duration: 6.5s; animation-delay: 2.5s; }
+
+        @keyframes rise {
+            0% { transform: translateY(0) scale(0.8); opacity: 0; }
+            50% { opacity: 0.8; }
+            100% { transform: translateY(-1000px) scale(1.2); opacity: 0; }
+        }
+
+        /* Coca-Cola Styled Glassmorphism Login Card */
         .login-card {
-            background: white; padding: 30px; border-radius: 12px; width: 100%; max-width: 400px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3); text-align: center; border-top: 5px solid #d1121d;
+            position: relative; z-index: 2;
+            background: rgba(20, 3, 4, 0.75);
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            padding: 35px 30px; border-radius: 20px; width: 100%; max-width: 420px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6), 0 0 25px rgba(228, 30, 45, 0.3);
+            text-align: center; border: 1px solid rgba(255, 255, 255, 0.15);
+            border-top: 5px solid #e41e2d;
         }
-        .login-card h2 { margin-top: 0; color: #0d0d0d; font-size: 22px; }
-        .login-card .form-group { text-align: left; margin-bottom: 15px; }
+
+        /* Developer Logo & Header */
+        .dev-brand-badge {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: linear-gradient(90deg, #e41e2d, #ff414d);
+            color: #ffffff; padding: 6px 14px; border-radius: 30px;
+            font-size: 11px; font-weight: 800; letter-spacing: 1.5px;
+            text-transform: uppercase; margin-bottom: 15px;
+            box-shadow: 0 4px 15px rgba(228, 30, 45, 0.4);
+        }
+        .dev-logo-icon {
+            width: 22px; height: 22px; background: white; color: #e41e2d;
+            border-radius: 50%; font-weight: 900; display: flex;
+            align-items: center; justify-content: center; font-size: 12px;
+        }
+
+        .coca-cola-login-logo {
+            width: 160px; height: auto; margin-bottom: 12px;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5));
+        }
+
+        .login-card h2 { margin: 5px 0 0 0; color: #ffffff; font-size: 20px; font-weight: 800; font-family: 'Montserrat', sans-serif; letter-spacing: 1px; }
+        .login-card .sub-title { font-size: 12px; color: #d0d0d0; margin-bottom: 22px; }
+
+        .login-card .form-group { text-align: left; margin-bottom: 18px; }
+        .login-card label { color: #f0f0f0; font-size: 12px; letter-spacing: 0.5px; text-transform: uppercase; }
+        
         .login-card input { 
-            width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ccc; 
-            border-radius: 6px; font-size: 15px; direction: ltr; text-align: left; outline: none;
+            width: 100%; padding: 12px 15px; margin-top: 6px; 
+            background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.2); 
+            border-radius: 8px; font-size: 14px; color: #ffffff; direction: ltr; text-align: left; outline: none;
+            transition: all 0.3s ease;
         }
+        .login-card input::placeholder { color: #aaa; }
+        .login-card input:focus { 
+            background: rgba(255, 255, 255, 0.15); border-color: #e41e2d; 
+            box-shadow: 0 0 10px rgba(228, 30, 45, 0.5); 
+        }
+
         .password-container { position: relative; width: 100%; }
         .password-container input { padding-right: 40px; }
-        .eye-icon { position: absolute; right: 12px; top: 60%; transform: translateY(-50%); cursor: pointer; font-size: 18px; user-select: none; }
+        .eye-icon { position: absolute; right: 12px; top: 62%; transform: translateY(-50%); cursor: pointer; font-size: 18px; user-select: none; color: #ccc; }
         
-        .btn-login { width: 100%; background: #d1121d; color: white; border: none; padding: 12px; font-size: 16px; font-weight: bold; border-radius: 6px; cursor: pointer; margin-top: 10px; }
+        .btn-login { 
+            width: 100%; background: linear-gradient(135deg, #e41e2d 0%, #b00e17 100%); 
+            color: white; border: none; padding: 13px; font-size: 15px; font-weight: 800; 
+            border-radius: 8px; cursor: pointer; margin-top: 10px; letter-spacing: 1px;
+            text-transform: uppercase; transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(228, 30, 45, 0.4);
+        }
+        .btn-login:hover { background: linear-gradient(135deg, #ff2a3a 0%, #c4101a 100%); transform: translateY(-2px); box-shadow: 0 8px 20px rgba(228, 30, 45, 0.6); }
+
+        .dev-footer-credits {
+            margin-top: 20px; font-size: 11px; color: rgba(255, 255, 255, 0.7);
+            border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 12px;
+        }
+        .dev-footer-credits strong { color: #ffffff; font-weight: 700; }
+        /* ===================================================================== */
+
         .btn-login:hover { background: #b00e17; }
         .user-info-bar { display: flex; justify-content: space-between; align-items: center; background: #eef2f5; padding: 10px 15px; border-radius: 6px; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
         
@@ -175,9 +256,32 @@
 <body>
 
 <div id="loginOverlay">
+    <!-- Animated Cola Bubbles Video Background Effect -->
+    <div class="cola-bg-animation">
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+    </div>
+
+    <!-- Login Card -->
     <div class="login-card">
+        <!-- Developer Branding Badge -->
+        <div class="dev-brand-badge">
+            <span class="dev-logo-icon">A</span>
+            <span>Adnan Software Solutions</span>
+        </div>
+
+        <div>
+            <img src="https://upload.wikimedia.org/wikipedia/commons/c/ce/Coca-Cola_logo.svg" alt="Coca Cola Logo" class="coca-cola-login-logo">
+        </div>
+
         <h2>🔒 System Login</h2>
-        <p style="font-size: 13px; color: #666; margin-bottom: 20px;">Enter your username and password</p>
+        <div class="sub-title">AL QADIR TRADERS - COCA COLA DISTRIBUTION</div>
+
         <div class="form-group">
             <label>Username:</label>
             <input type="text" id="loginUser" placeholder="Enter Username" autocomplete="off">
@@ -187,7 +291,12 @@
             <input type="password" id="loginPass" placeholder="Enter Password">
             <span class="eye-icon" id="togglePasswordBtn">👁️</span>
         </div>
-        <button class="btn-login" onclick="attemptLogin()">Login</button>
+        <button class="btn-login" onclick="attemptLogin()">Sign In To Ledger</button>
+
+        <!-- Developer Credit Footer -->
+        <div class="dev-footer-credits">
+            Developed & Designed by <strong>ADNAN</strong> | Lead Software Developer
+        </div>
     </div>
 </div>
 
