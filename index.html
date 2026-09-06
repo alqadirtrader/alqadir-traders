@@ -8,27 +8,36 @@
     
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Montserrat:wght@400;600;800;900&family=Noto+Nastaliq+Urdu:wght@700&family=Amiri:wght@700&display=swap" rel="stylesheet">
     <style>
-        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background-color: #f4f6f9; margin: 0; padding: 15px; direction: ltr; text-align: left; }
-        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; transition: background 0.4s ease, border-color 0.4s ease; }
         
-        /* ================= COCA-COLA ANIMATED LOGIN OVERLAY ================= */
-        #loginOverlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(135deg, #0a0000 0%, #3a0003 50%, #8a0008 100%);
-            display: flex; justify-content: center; align-items: center;
-            z-index: 9999; padding: 15px; overflow: hidden;
+        /* Dynamic Theme Variables applied via JS on Tab Change */
+        :root {
+            --bg-gradient: linear-gradient(135deg, #0a0000 0%, #200003 50%, #4a0005 100%);
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --primary-accent: #e41e2d;
+            --text-color: #222;
         }
 
-        /* Video / Cola Bubbles Animation Effect */
-        .cola-bg-animation {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            overflow: hidden; z-index: 1; pointer-events: none;
+        body { 
+            background: var(--bg-gradient); 
+            margin: 0; 
+            padding: 15px; 
+            direction: ltr; 
+            text-align: left; 
+            min-height: 100vh;
+            color: var(--text-color);
+            position: relative;
+        }
+
+        /* Ambient Coca-Cola Fizzy Soda Animation Background */
+        .cola-global-bg-animation {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            overflow: hidden; z-index: 0; pointer-events: none;
         }
         .bubble {
-            position: absolute; bottom: -50px; background: rgba(255, 255, 255, 0.15);
+            position: absolute; bottom: -50px; background: rgba(255, 255, 255, 0.18);
             border-radius: 50%; animation: rise 8s infinite ease-in-out;
-            box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
         }
         .bubble:nth-child(1) { width: 40px; height: 40px; left: 10%; animation-duration: 6s; animation-delay: 0s; }
         .bubble:nth-child(2) { width: 20px; height: 20px; left: 20%; animation-duration: 9s; animation-delay: 1s; }
@@ -41,13 +50,29 @@
         @keyframes rise {
             0% { transform: translateY(0) scale(0.8); opacity: 0; }
             50% { opacity: 0.8; }
-            100% { transform: translateY(-1000px) scale(1.2); opacity: 0; }
+            100% { transform: translateY(-110vh) scale(1.2); opacity: 0; }
         }
 
-        /* Coca-Cola Styled Glassmorphism Login Card */
+        .container { 
+            position: relative; z-index: 1;
+            max-width: 1200px; margin: 0 auto; 
+            background: var(--card-bg); 
+            padding: 20px; border-radius: 15px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
+            backdrop-filter: blur(10px);
+        }
+        
+        /* ================= COCA-COLA ANIMATED LOGIN OVERLAY ================= */
+        #loginOverlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, #0a0000 0%, #3a0003 50%, #8a0008 100%);
+            display: flex; justify-content: center; align-items: center;
+            z-index: 9999; padding: 15px; overflow: hidden;
+        }
+
         .login-card {
             position: relative; z-index: 2;
-            background: rgba(20, 3, 4, 0.75);
+            background: rgba(20, 3, 4, 0.85);
             backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
             padding: 35px 30px; border-radius: 20px; width: 100%; max-width: 420px;
             box-shadow: 0 15px 35px rgba(0,0,0,0.6), 0 0 25px rgba(228, 30, 45, 0.3);
@@ -55,7 +80,6 @@
             border-top: 5px solid #e41e2d;
         }
 
-        /* Developer Logo & Header */
         .dev-brand-badge {
             display: inline-flex; align-items: center; gap: 8px;
             background: linear-gradient(90deg, #e41e2d, #ff414d);
@@ -113,7 +137,6 @@
         .dev-footer-credits strong { color: #ffffff; font-weight: 700; }
         /* ===================================================================== */
 
-        .btn-login:hover { background: #b00e17; }
         .user-info-bar { display: flex; justify-content: space-between; align-items: center; background: #eef2f5; padding: 10px 15px; border-radius: 6px; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
         
         .status-dot {
@@ -150,7 +173,6 @@
         .brand-center { text-align: center; flex-grow: 1; }
         .arabic-logo-symbol { font-size: 22px; color: #d1121d; margin-bottom: -5px; }
         .brand-title-ur { font-family: 'Amiri', 'Noto Nastaliq Urdu', serif; font-size: 32px; font-weight: bold; color: #0d0d0d; margin: 0; line-height: 1.3; direction: rtl; text-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-        .brand-sub-ur { font-family: 'Noto Nastaliq Urdu', serif; font-size: 12px; color: #d1121d; margin-top: -2px; direction: rtl; font-weight: bold; }
         
         .brand-right { text-align: right; direction: ltr; display: flex; flex-direction: column; align-items: flex-end; }
         .coca-cola-logo-img { height: 45px; width: auto; object-fit: contain; }
@@ -162,12 +184,19 @@
             border-radius: 4px; border: 1px solid #f5c6cb; direction: ltr; flex-wrap: wrap; gap: 5px;
         }
 
+        /* Beautiful Dynamic Tabs */
         .tabs { display: flex; gap: 8px; margin-bottom: 20px; border-bottom: 2px solid #ddd; flex-wrap: wrap; }
-        .tab-btn { padding: 10px 16px; background: #e9ecef; border: none; font-weight: bold; cursor: pointer; border-radius: 5px 5px 0 0; font-size: 13px; flex-grow: 1; text-align: center; }
-        .tab-btn.active { background: #d1121d; color: white; }
+        .tab-btn { 
+            padding: 10px 16px; background: rgba(233, 236, 239, 0.9); border: none; font-weight: bold; cursor: pointer; 
+            border-radius: 8px 8px 0 0; font-size: 13px; flex-grow: 1; text-align: center; transition: all 0.3s ease;
+            box-shadow: 0 -2px 5px rgba(0,0,0,0.05);
+        }
+        .tab-btn:hover { background: #fff; transform: translateY(-2px); }
+        .tab-btn.active { background: #d1121d; color: white; box-shadow: 0 4px 10px rgba(209, 18, 29, 0.4); }
         
-        .tab-content { display: none; }
+        .tab-content { display: none; animation: fadeIn 0.4s ease; }
         .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
         
         form { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #e2e8f0; text-align: left; }
         .form-group { display: flex; flex-direction: column; gap: 5px; text-align: left; }
@@ -175,8 +204,8 @@
         .required-star { color: red; font-weight: bold; margin-left: 3px; }
         input, select { padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; text-align: left; direction: ltr; width: 100%; }
         
-        button.btn-add { background: #28a745; color: white; border: none; padding: 12px 20px; font-weight: bold; border-radius: 5px; cursor: pointer; grid-column: 1 / -1; font-size: 16px; }
-        button.btn-add:hover { background: #218838; }
+        button.btn-add { background: #28a745; color: white; border: none; padding: 12px 20px; font-weight: bold; border-radius: 5px; cursor: pointer; grid-column: 1 / -1; font-size: 16px; transition: all 0.2s ease; }
+        button.btn-add:hover { background: #218838; transform: scale(1.01); }
         
         .btn-excel { background: #1D6F42; color: white; border: none; padding: 9px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 13px; }
         .btn-backup { background: #6f42c1; color: white; border: none; padding: 9px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 13px; }
@@ -190,8 +219,8 @@
         .filter-box { background: #eef2f5; padding: 12px; border-radius: 8px; margin-bottom: 15px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
         .checkbox-label { display: flex; align-items: center; gap: 8px; font-weight: bold; cursor: pointer; user-select: none; color: #c0392b; font-size: 13px; }
 
-        .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 10px; }
-        table { width: 100%; border-collapse: collapse; min-width: 600px; direction: ltr; }
+        .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 10px; border-radius: 8px; }
+        table { width: 100%; border-collapse: collapse; min-width: 600px; direction: ltr; background: white; }
         th, td { border: 1px solid #dee2e6; padding: 8px 10px; font-size: 13px; }
         th { background-color: #0d0d0d; color: white; text-align: center; }
         
@@ -201,9 +230,9 @@
         tr:nth-child(even) { background-color: #f8f9fa; }
         
         .summary-card { display: flex; gap: 12px; margin-bottom: 15px; flex-wrap: wrap; direction: ltr; }
-        .card { flex: 1; min-width: 160px; background: #f8f9fa; padding: 10px 15px; border-radius: 6px; border-left: 4px solid #d1121d; text-align: left; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .card { flex: 1; min-width: 160px; background: #f8f9fa; padding: 12px 15px; border-radius: 8px; border-left: 4px solid #d1121d; text-align: left; box-shadow: 0 2px 6px rgba(0,0,0,0.06); }
         .card h3 { margin: 0; color: #555; font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; }
-        .card p { margin: 4px 0 0 0; font-size: 15px; font-weight: bold; color: #0d0d0d; }
+        .card p { margin: 4px 0 0 0; font-size: 16px; font-weight: bold; color: #0d0d0d; }
 
         .bal-positive { color: #d1121d; font-weight: bold; }
         .bal-negative { color: #28a745; font-weight: bold; }
@@ -225,6 +254,38 @@
             cursor: pointer; font-weight: 600; color: #333; margin: 0; width: 100%; display: flex; justify-content: space-between; align-items: center;
         }
 
+        /* ================= AI ASSISTANT CHAT WIDGET ================= */
+        #aiHelpFab {
+            position: fixed; bottom: 20px; right: 20px; z-index: 9990;
+            background: linear-gradient(135deg, #e41e2d, #ff414d); color: white;
+            border: none; padding: 12px 20px; border-radius: 30px; font-size: 14px; font-weight: bold;
+            box-shadow: 0 8px 20px rgba(228, 30, 45, 0.5); cursor: pointer;
+            display: flex; align-items: center; gap: 8px; transition: all 0.3s ease;
+        }
+        #aiHelpFab:hover { transform: scale(1.08); box-shadow: 0 10px 25px rgba(228, 30, 45, 0.7); }
+
+        #aiChatWindow {
+            position: fixed; bottom: 75px; right: 20px; width: 340px; height: 450px;
+            background: #ffffff; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            z-index: 9991; display: none; flex-direction: column; overflow: hidden;
+            border: 2px solid #e41e2d; animation: slideUp 0.3s ease;
+        }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        .ai-chat-header {
+            background: linear-gradient(135deg, #e41e2d, #b00e17); color: white; padding: 12px 15px;
+            font-weight: bold; display: flex; justify-content: space-between; align-items: center; font-size: 14px;
+        }
+        .ai-chat-close { cursor: pointer; font-size: 18px; font-weight: bold; }
+        .ai-chat-body { flex: 1; padding: 12px; overflow-y: auto; background: #fdfdfd; display: flex; flex-direction: column; gap: 10px; font-size: 13px; }
+        .ai-msg { padding: 8px 12px; border-radius: 10px; max-width: 85%; word-wrap: break-word; line-height: 1.4; }
+        .ai-msg.bot { background: #f0f2f5; color: #111; align-self: flex-start; border-bottom-left-radius: 2px; }
+        .ai-msg.user { background: #e41e2d; color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
+
+        .ai-chat-footer { padding: 8px; border-top: 1px solid #eee; display: flex; gap: 5px; background: #fff; }
+        .ai-chat-footer input { flex: 1; padding: 8px 12px; border: 1px solid #ccc; border-radius: 20px; font-size: 12px; outline: none; }
+        .ai-chat-footer button { background: #e41e2d; color: white; border: none; padding: 8px 14px; border-radius: 20px; cursor: pointer; font-weight: bold; font-size: 12px; }
+
         @media (max-width: 768px) {
             body { padding: 8px; }
             .container { padding: 12px; }
@@ -236,13 +297,14 @@
             .coca-cola-logo-img { height: 35px; }
             .tabs { gap: 4px; }
             .tab-btn { font-size: 12px; padding: 8px 10px; }
+            #aiChatWindow { width: 90%; right: 5%; bottom: 80px; }
         }
 
         @page { size: A4 portrait; margin: 0.25in; }
         @media print {
-            .tabs, form, button, .no-print, .btn-edit, .btn-delete, .btn-transfer, .filter-box, .backup-box, .user-info-bar { display: none !important; }
-            body { background: white; padding: 0; margin: 0; direction: ltr !important; text-align: left !important; font-size: 12pt; }
-            .container { box-shadow: none; padding: 0; width: 100%; max-width: 100%; border: none; }
+            .tabs, form, button, .no-print, .btn-edit, .btn-delete, .btn-transfer, .filter-box, .backup-box, .user-info-bar, #aiHelpFab, #aiChatWindow, .cola-global-bg-animation { display: none !important; }
+            body { background: white !important; padding: 0; margin: 0; direction: ltr !important; text-align: left !important; font-size: 12pt; color: #000 !important; }
+            .container { box-shadow: none; padding: 0; width: 100%; max-width: 100%; border: none; background: transparent !important; }
             th { background-color: #0d0d0d !important; color: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             .brand-header-custom { border-bottom: 3px solid #d1121d !important; -webkit-print-color-adjust: exact; margin-bottom: 5px !important; flex-direction: row !important; justify-content: space-between; }
             .print-date-bar { border: none !important; background: transparent !important; margin-bottom: 10px !important; padding: 0 !important; color: #000 !important; }
@@ -255,21 +317,19 @@
 </head>
 <body>
 
-<div id="loginOverlay">
-    <!-- Animated Cola Bubbles Video Background Effect -->
-    <div class="cola-bg-animation">
-        <div class="bubble"></div>
-        <div class="bubble"></div>
-        <div class="bubble"></div>
-        <div class="bubble"></div>
-        <div class="bubble"></div>
-        <div class="bubble"></div>
-        <div class="bubble"></div>
-    </div>
+<!-- Animated Global Cola Bubbles Background -->
+<div class="cola-global-bg-animation">
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+</div>
 
-    <!-- Login Card -->
+<div id="loginOverlay">
     <div class="login-card">
-        <!-- Developer Branding Badge -->
         <div class="dev-brand-badge">
             <span class="dev-logo-icon">A</span>
             <span>Adnan Software Solutions</span>
@@ -293,7 +353,6 @@
         </div>
         <button class="btn-login" onclick="attemptLogin()">Sign In To Ledger</button>
 
-        <!-- Developer Credit Footer -->
         <div class="dev-footer-credits">
             Developed & Designed by <strong>ADNAN</strong> | Lead Software Developer
         </div>
@@ -321,7 +380,6 @@
         <div class="brand-center">
             <div class="arabic-logo-symbol">꧁ 🕌 ꧂</div>
             <div class="brand-title-ur">الْقَادِرُ ٹْرِیڈَرْزْ</div>
-            <div class="brand-sub-ur">مارکیٹ ادھار کھاتہ سسٹم</div>
         </div>
         <div class="brand-right">
             <img src="https://upload.wikimedia.org/wikipedia/commons/c/ce/Coca-Cola_logo.svg" alt="Coca Cola Logo" class="coca-cola-logo-img">
@@ -637,11 +695,9 @@
                 <input type="text" id="newBookerName" placeholder="e.g. SHAHID">
             </div>
 
-            <!-- New Custom Booker Selection for Allowed Bookers -->
             <div class="form-group" id="allowedBookersGroup" style="grid-column: 1 / -1; display: none;">
                 <label>Select Allowed Bookers (Dashboard Show Access):</label>
-                <div class="shop-permission-box" id="bookersCheckboxesList" style="max-height: 150px; margin-bottom: 10px;">
-                </div>
+                <div class="shop-permission-box" id="bookersCheckboxesList" style="max-height: 150px; margin-bottom: 10px;"></div>
             </div>
 
             <div class="form-group" id="allowedShopsGroup" style="grid-column: 1 / -1; display: none;">
@@ -655,8 +711,7 @@
                 </div>
 
                 <label>Select Allowed Shops (Check shops to show for this user):</label>
-                <div class="shop-permission-box" id="shopsCheckboxesList">
-                </div>
+                <div class="shop-permission-box" id="shopsCheckboxesList"></div>
             </div>
 
             <button type="button" class="btn-add" id="saveUserBtn" onclick="saveUser()">Create User 👤</button>
@@ -719,6 +774,25 @@
     </div>
 </div>
 
+<!-- ================= AI HELP ASSISTANT FLOATING WIDGET ================= -->
+<button id="aiHelpFab" onclick="toggleAiChat()">🤖 AI Help Assistant</button>
+
+<div id="aiChatWindow">
+    <div class="ai-chat-header">
+        <span>🤖 Al Qadir AI Smart Help</span>
+        <span class="ai-chat-close" onclick="toggleAiChat()">✖</span>
+    </div>
+    <div class="ai-chat-body" id="aiChatMessages">
+        <div class="ai-msg bot">
+            Assalam-o-Alaikum! Main aapka **Al Qadir AI Assistant** hoon. Aap app ke hawale se koi bhi sawal Urdu ya English me pooch sakte hain! 🌸
+        </div>
+    </div>
+    <div class="ai-chat-footer">
+        <input type="text" id="aiChatInput" placeholder="Kuch bhi poochen (e.g. Entry kaise karein)..." onkeypress="if(event.key === 'Enter') sendAiMessage()">
+        <button onclick="sendAiMessage()">Send</button>
+    </div>
+</div>
+
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
@@ -737,6 +811,23 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
+    /* ================= DYNAMIC TAB BACKGROUND THEMES ================= */
+    const TAB_THEMES = {
+        'dashboard': 'linear-gradient(135deg, #0a0000 0%, #200003 50%, #4a0005 100%)',
+        'entry': 'linear-gradient(135deg, #021e07 0%, #083813 50%, #135222 100%)',
+        'ledger': 'linear-gradient(135deg, #03182b 0%, #0a2e4d 50%, #12436e 100%)',
+        'bookerLedger': 'linear-gradient(135deg, #1c022e 0%, #350854 50%, #52127d 100%)',
+        'shops': 'linear-gradient(135deg, #2e1700 0%, #542d05 50%, #7d460d 100%)',
+        'users': 'linear-gradient(135deg, #00222e 0%, #043e52 50%, #0e5e7a 100%)',
+        'backup': 'linear-gradient(135deg, #1f1f1f 0%, #383838 50%, #545454 100%)'
+    };
+
+    function switchBackgroundTheme(tabId) {
+        if(TAB_THEMES[tabId]) {
+            document.documentElement.style.setProperty('--bg-gradient', TAB_THEMES[tabId]);
+        }
+    }
+
     function parseFormattedDate(dateStr) {
         if (!dateStr) return new Date(0);
         let parts = dateStr.toString().trim().split('-');
@@ -753,11 +844,9 @@
         if (!input) return '';
         let str = input.toString().trim().replace(/[/.]/g, '-');
         let parts = str.split('-');
-        
         if (parts.length !== 3) return input;
         
         let year, month, day;
-        
         if (parts[0].length === 4) { 
             year = parts[0];
             month = parts[1].padStart(2, '0');
@@ -766,11 +855,8 @@
             day = parts[0].padStart(2, '0');
             month = parts[1].padStart(2, '0');
             year = parts[2];
-            if (year.length === 2) {
-                year = '20' + year;
-            }
+            if (year.length === 2) year = '20' + year;
         }
-        
         return `${day}-${month}-${year}`;
     }
 
@@ -787,9 +873,7 @@
             gain.connect(ctx.destination);
             osc.start();
             osc.stop(ctx.currentTime + 0.25);
-        } catch(e) {
-            console.log("Audio play blocked by browser setup", e);
-        }
+        } catch(e) {}
     }
 
     const DEFAULT_USERS = [
@@ -809,25 +893,17 @@
         const dateStr = now.toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' });
         const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
         const liveElem = document.getElementById('liveDateTimeLabel');
-        if (liveElem) {
-            liveElem.innerText = `${dateStr} - ${timeStr}`;
-        }
+        if (liveElem) liveElem.innerText = `${dateStr} - ${timeStr}`;
     }
     setInterval(updateLiveClock, 1000);
     updateLiveClock();
 
     db.ref('pos_transactions').once('value', snapshot => {
         const val = snapshot.val();
-        if (val) {
-            transactions = Array.isArray(val) ? val : Object.values(val);
-        } else {
-            transactions = DEFAULT_TRANSACTIONS;
-        }
+        transactions = val ? (Array.isArray(val) ? val : Object.values(val)) : DEFAULT_TRANSACTIONS;
         transactions = transactions.filter(t => t && t.shop && t.shop.toString().trim() !== '' && t.shop.toString().toUpperCase() !== 'UNDEFINED' && t.shop.toString().toUpperCase() !== 'UNKNOWN');
         
-        transactions.forEach(t => {
-            if (t.date) t.date = normalizeDate(t.date);
-        });
+        transactions.forEach(t => { if (t.date) t.date = normalizeDate(t.date); });
 
         populateShopDropdowns();
         populateEntryBookersDropdown();
@@ -836,31 +912,18 @@
 
     db.ref('pos_users_db').on('value', snapshot => {
         const val = snapshot.val();
-        if (val) {
-            USERS_DATABASE = Array.isArray(val) ? val : Object.values(val);
-        } else {
-            USERS_DATABASE = DEFAULT_USERS;
-        }
+        USERS_DATABASE = val ? (Array.isArray(val) ? val : Object.values(val)) : DEFAULT_USERS;
         populateEntryBookersDropdown();
-        if (document.querySelector('.tab-content.active')?.id === 'users') {
-            renderUsers();
-        }
+        if (document.querySelector('.tab-content.active')?.id === 'users') renderUsers();
     });
 
-    function saveTransactionsToCloud() {
-        db.ref('pos_transactions').set(transactions);
-    }
-
-    function saveUsersToCloud() {
-        db.ref('pos_users_db').set(USERS_DATABASE);
-    }
+    function saveTransactionsToCloud() { db.ref('pos_transactions').set(transactions); }
+    function saveUsersToCloud() { db.ref('pos_users_db').set(USERS_DATABASE); }
 
     const todayObj = new Date();
     document.getElementById('entryDate').value = normalizeDate(`${todayObj.getDate()}-${todayObj.getMonth() + 1}-${todayObj.getFullYear()}`);
 
-    function cleanStr(str) {
-        return (str || '').toString().trim().toLowerCase();
-    }
+    function cleanStr(str) { return (str || '').toString().trim().toLowerCase(); }
 
     function formatBalance(val) {
         if (val > 0) return `<span class="bal-positive">Rs. ${val.toLocaleString()}</span>`;
@@ -889,18 +952,14 @@
     function attemptLogin() {
         const uInput = cleanStr(document.getElementById('loginUser').value);
         const pInput = document.getElementById('loginPass').value.trim();
-
         const userIdx = USERS_DATABASE.findIndex(u => cleanStr(u.username) === uInput && u.password === pInput);
 
         if(userIdx !== -1) {
             const nowStr = new Date().toLocaleString('en-US', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit', hour12: true });
-            
             USERS_DATABASE[userIdx].isOnline = true;
             USERS_DATABASE[userIdx].lastActive = `Login: ${nowStr}`;
-            
             currentUser = USERS_DATABASE[userIdx];
             sessionStorage.setItem('pos_current_user', JSON.stringify(currentUser));
-            
             saveUsersToCloud();
             applyUserPermissions();
         } else {
@@ -931,24 +990,20 @@
 
         document.getElementById('loginOverlay').style.display = 'none';
         document.getElementById('loggedUsername').innerText = currentUser.username.toUpperCase();
-        
         const badgeElem = document.getElementById('userRoleBadge');
 
         if(currentUser.role === 'admin') {
-            badgeElem.style.display = 'inline-block';
-            badgeElem.innerText = 'Admin';
+            badgeElem.style.display = 'inline-block'; badgeElem.innerText = 'Admin';
             document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'inline-block');
             document.querySelector('.dashboard-tab-btn').style.display = 'inline-block';
             openTab('dashboard', document.getElementById('tabDashBtn'));
         } else if(currentUser.role === 'custom_booker') {
-            badgeElem.style.display = 'none';
-            badgeElem.innerText = '';
+            badgeElem.style.display = 'none'; badgeElem.innerText = '';
             document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
             document.querySelector('.dashboard-tab-btn').style.display = 'inline-block';
             openTab('dashboard', document.getElementById('tabDashBtn'));
         } else {
-            badgeElem.style.display = 'inline-block';
-            badgeElem.innerText = 'Booker (View Only)';
+            badgeElem.style.display = 'inline-block'; badgeElem.innerText = 'Booker (View Only)';
             document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
             document.querySelector('.dashboard-tab-btn').style.display = 'none';
             openTab('bookerLedger', document.getElementById('tabBookerBtn'));
@@ -974,6 +1029,8 @@
             return;
         }
 
+        switchBackgroundTheme(tabId);
+
         document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
         document.getElementById(tabId).classList.add('active');
@@ -987,9 +1044,7 @@
         if (currentUser.role === 'admin') return true;
         if (currentUser.role === 'custom_booker') {
             const allowedBookersList = (currentUser.allowedBookers || []).map(b => cleanStr(b));
-            if (allowedBookersList.length > 0 && allowedBookersList.includes(cleanStr(bookerName))) {
-                return true;
-            }
+            if (allowedBookersList.length > 0 && allowedBookersList.includes(cleanStr(bookerName))) return true;
             const allowedList = (currentUser.allowedShops || []).map(s => cleanStr(s));
             return allowedList.includes(cleanStr(shopName));
         }
@@ -1005,22 +1060,14 @@
         const currentVal = bSelect.value;
 
         const bookerSet = new Set();
-        USERS_DATABASE.forEach(u => {
-            if (u.bookerName && u.bookerName !== 'ALL') bookerSet.add(u.bookerName.toUpperCase());
-        });
-        transactions.forEach(t => {
-            if (t.booker) bookerSet.add(t.booker.toUpperCase());
-        });
+        USERS_DATABASE.forEach(u => { if (u.bookerName && u.bookerName !== 'ALL') bookerSet.add(u.bookerName.toUpperCase()); });
+        transactions.forEach(t => { if (t.booker) bookerSet.add(t.booker.toUpperCase()); });
 
         const sortedBookers = Array.from(bookerSet).sort((a, b) => a.localeCompare(b));
-        
         let html = '<option value="">-- Select Order Booker --</option>';
-        sortedBookers.forEach(b => {
-            html += `<option value="${b}">${b}</option>`;
-        });
+        sortedBookers.forEach(b => { html += `<option value="${b}">${b}</option>`; });
         bSelect.innerHTML = html;
         bSelect.value = currentVal;
-
         populateShopSuggestions();
     }
 
@@ -1028,15 +1075,12 @@
         const selectedBooker = cleanStr(document.getElementById('bookerName').value);
         const datalist = document.getElementById('shopSuggestionsList');
         if (!datalist) return;
-
         datalist.innerHTML = '';
         if (!selectedBooker) return;
 
         const shopsSet = new Set();
         transactions.forEach(t => {
-            if (t.shop && cleanStr(t.booker) === selectedBooker) {
-                shopsSet.add(t.shop.toUpperCase());
-            }
+            if (t.shop && cleanStr(t.booker) === selectedBooker) shopsSet.add(t.shop.toUpperCase());
         });
 
         const sortedShops = Array.from(shopsSet).sort((a, b) => a.localeCompare(b));
@@ -1097,9 +1141,7 @@
 
                 for(let i = 0; i < lines.length; i++) {
                     const line = lines[i].trim();
-                    if(!line) continue;
-
-                    if(i === 0 && (line.toLowerCase().includes('date') || line.toLowerCase().includes('shop'))) continue;
+                    if(!line || (i === 0 && (line.toLowerCase().includes('date') || line.toLowerCase().includes('shop')))) continue;
 
                     const cols = line.split(',');
                     if(cols.length >= 3) {
@@ -1126,9 +1168,7 @@
                 } else {
                     alert('No valid entries found in the CSV file!');
                 }
-            } catch(err) {
-                alert('Error reading CSV file. Please make sure format is correct.');
-            }
+            } catch(err) { alert('Error reading CSV file.'); }
             event.target.value = '';
         };
         reader.readAsText(file);
@@ -1142,10 +1182,7 @@
         const toDateObj = rawToDate ? parseFormattedDate(normalizeDate(rawToDate)) : null;
 
         let filtered = transactions.filter(t => {
-            if (toDateObj) {
-                let tDateObj = parseFormattedDate(t.date);
-                if (tDateObj > toDateObj) return false;
-            }
+            if (toDateObj && parseFormattedDate(t.date) > toDateObj) return false;
             return true;
         });
         
@@ -1179,26 +1216,17 @@
     }
 
     function toggleSelectAllEntries(master) {
-        const checkboxes = document.querySelectorAll('.entry-select-checkbox');
-        checkboxes.forEach(cb => cb.checked = master.checked);
+        document.querySelectorAll('.entry-select-checkbox').forEach(cb => cb.checked = master.checked);
     }
 
     function deleteSelectedEntries() {
         const checkboxes = document.querySelectorAll('.entry-select-checkbox:checked');
-        if(checkboxes.length === 0) {
-            alert('Please select at least one entry to delete!');
-            return;
-        }
-
+        if(checkboxes.length === 0) return alert('Select entries first!');
         const selectedIndices = Array.from(checkboxes).map(cb => parseInt(cb.value)).sort((a,b) => b - a);
 
-        if(confirm(`Are you sure you want to delete ${selectedIndices.length} selected daily entries?`)) {
-            selectedIndices.forEach(idx => {
-                transactions.splice(idx, 1);
-            });
-            renderTransactions();
-            saveTransactionsToCloud();
-            alert(`Selected ${selectedIndices.length} entries deleted successfully!`);
+        if(confirm(`Delete ${selectedIndices.length} selected entries?`)) {
+            selectedIndices.forEach(idx => transactions.splice(idx, 1));
+            renderTransactions(); saveTransactionsToCloud();
         }
     }
 
@@ -1218,10 +1246,8 @@
     }
 
     function deleteTx(index) {
-        if(confirm('Are you sure you want to delete this entry?')) {
-            transactions.splice(index, 1);
-            renderTransactions();
-            saveTransactionsToCloud();
+        if(confirm('Delete this entry?')) {
+            transactions.splice(index, 1); renderTransactions(); saveTransactionsToCloud();
         }
     }
 
@@ -1241,11 +1267,7 @@
 
         for(let i = 0; i < transactions.length; i++) {
             const t = transactions[i];
-
-            if (toDateObj) {
-                let tDateObj = parseFormattedDate(t.date);
-                if (tDateObj > toDateObj) continue;
-            }
+            if (toDateObj && parseFormattedDate(t.date) > toDateObj) continue;
 
             const b = t.booker ? t.booker.toUpperCase() : '';
             const s = t.shop ? t.shop.toUpperCase() : '';
@@ -1253,10 +1275,7 @@
             if(!isShopAllowedForUser(s, b)) continue;
 
             const diff = t.credit - t.recovery;
-
-            if(!bookerMap[b]) {
-                bookerMap[b] = { shops: new Set(), credit: 0, recovery: 0 };
-            }
+            if(!bookerMap[b]) bookerMap[b] = { shops: new Set(), credit: 0, recovery: 0 };
             bookerMap[b].shops.add(s);
             bookerMap[b].credit += t.credit;
             bookerMap[b].recovery += t.recovery;
@@ -1280,17 +1299,13 @@
         const tbody = document.getElementById('dashBookerTable');
         let html = '';
         let sno = 1;
-
         const sortedBookers = Object.keys(bookerMap).sort((a, b) => a.localeCompare(b));
 
         for (const bName of sortedBookers) {
             const data = bookerMap[bName];
             const net = data.credit - data.recovery;
             let bCreditShops = 0;
-
-            data.shops.forEach(s => {
-                if((shopBalMap[s] || 0) > 0) bCreditShops++;
-            });
+            data.shops.forEach(s => { if((shopBalMap[s] || 0) > 0) bCreditShops++; });
 
             html += `
                 <tr>
@@ -1310,22 +1325,16 @@
     function populateShopDropdowns() {
         const select = document.getElementById('shopSelectDropdown');
         if(!select) return;
-
         const currentVal = select.value;
         select.innerHTML = '<option value="">-- Choose Shop --</option>';
 
         const shopsSet = new Set();
         transactions.forEach(t => {
-            if(t.shop && isShopAllowedForUser(t.shop, t.booker)) {
-                shopsSet.add(t.shop.toUpperCase());
-            }
+            if(t.shop && isShopAllowedForUser(t.shop, t.booker)) shopsSet.add(t.shop.toUpperCase());
         });
 
         const sortedShops = Array.from(shopsSet).sort((a,b) => a.localeCompare(b));
-        sortedShops.forEach(s => {
-            select.innerHTML += `<option value="${s}">${s}</option>`;
-        });
-
+        sortedShops.forEach(s => { select.innerHTML += `<option value="${s}">${s}</option>`; });
         select.value = currentVal;
     }
 
@@ -1341,7 +1350,6 @@
         
         const fromDateFormatted = rawFromDate ? normalizeDate(rawFromDate) : '';
         const toDateFormatted = rawToDate ? normalizeDate(rawToDate) : '';
-        
         const fromDateObj = fromDateFormatted ? parseFormattedDate(fromDateFormatted) : null;
         const toDateObj = toDateFormatted ? parseFormattedDate(toDateFormatted) : null;
         
@@ -1350,36 +1358,23 @@
         if(!query) {
             document.getElementById('ledgerShopName').innerText = '-';
             document.getElementById('ledgerNetBalance').innerText = 'Rs. 0';
-            tbody.innerHTML = '';
-            return;
+            tbody.innerHTML = ''; return;
         }
 
-        let displayShopName = document.getElementById('searchShopInput').value.toUpperCase();
-        document.getElementById('ledgerShopName').innerText = displayShopName;
-        
-        let runningBal = 0;
-        let html = '';
-        let sno = 1;
+        document.getElementById('ledgerShopName').innerText = document.getElementById('searchShopInput').value.toUpperCase();
+        let runningBal = 0, html = '', sno = 1;
 
         let sortedTx = transactions.map((t, originalIndex) => ({ ...t, originalIndex })).sort((a, b) => {
-            let dateA = parseFormattedDate(a.date);
-            let dateB = parseFormattedDate(b.date);
-            if (dateA.getTime() !== dateB.getTime()) {
-                return dateA - dateB;
-            }
-            return a.originalIndex - b.originalIndex;
+            let dateA = parseFormattedDate(a.date), dateB = parseFormattedDate(b.date);
+            return dateA.getTime() !== dateB.getTime() ? dateA - dateB : a.originalIndex - b.originalIndex;
         });
 
         if (fromDateObj) {
             let openingBal = 0;
             for(let i = 0; i < sortedTx.length; i++) {
                 const t = sortedTx[i];
-                if(cleanStr(t.shop).includes(query)) {
-                    if(!isShopAllowedForUser(t.shop, t.booker)) continue;
-                    let tDateObj = parseFormattedDate(t.date);
-                    if(tDateObj < fromDateObj) {
-                        openingBal += (t.credit - t.recovery);
-                    }
+                if(cleanStr(t.shop).includes(query) && isShopAllowedForUser(t.shop, t.booker)) {
+                    if(parseFormattedDate(t.date) < fromDateObj) openingBal += (t.credit - t.recovery);
                 }
             }
             runningBal = openingBal;
@@ -1388,8 +1383,7 @@
                     <td class="text-center">-</td>
                     <td class="text-center">${fromDateFormatted}</td>
                     <td class="text-left" colspan="2"><strong>OPENING BALANCE (Before ${fromDateFormatted})</strong></td>
-                    <td class="text-right">-</td>
-                    <td class="text-right">-</td>
+                    <td class="text-right">-</td><td class="text-right">-</td>
                     <td class="text-right">${formatBalance(runningBal)}</td>
                 </tr>
             `;
@@ -1397,16 +1391,12 @@
 
         for(let i = 0; i < sortedTx.length; i++) {
             const t = sortedTx[i];
-
-            if(cleanStr(t.shop).includes(query)) {
-                if(!isShopAllowedForUser(t.shop, t.booker)) continue;
-                
+            if(cleanStr(t.shop).includes(query) && isShopAllowedForUser(t.shop, t.booker)) {
                 let tDateObj = parseFormattedDate(t.date);
                 if (fromDateObj && tDateObj < fromDateObj) continue;
                 if (toDateObj && tDateObj > toDateObj) continue;
 
                 runningBal += (t.credit - t.recovery);
-
                 html += `
                     <tr>
                         <td class="text-center">${sno++}</td>
@@ -1420,7 +1410,6 @@
                 `;
             }
         }
-
         tbody.innerHTML = html;
         document.getElementById('ledgerNetBalance').innerHTML = formatBalance(runningBal);
     }
@@ -1428,40 +1417,30 @@
     function populateBookerDropdown() {
         const select = document.getElementById('selectBooker');
         select.innerHTML = '<option value="">-- Select Order Booker --</option>';
-
         const bookerSet = new Set();
-        for(let i=0; i<transactions.length; i++) {
-            if(transactions[i].booker) bookerSet.add(transactions[i].booker.toUpperCase());
-        }
+        transactions.forEach(t => { if(t.booker) bookerSet.add(t.booker.toUpperCase()); });
 
         if(currentUser && currentUser.role === 'booker') {
             const bName = currentUser.bookerName.toUpperCase();
             select.innerHTML = `<option value="${bName}">${bName}</option>`;
-            select.value = bName;
-            select.disabled = true;
-            renderBookerDetail();
-            return;
+            select.value = bName; select.disabled = true;
+            renderBookerDetail(); return;
         }
 
         if(currentUser && currentUser.role === 'custom_booker') {
             select.innerHTML = `<option value="CUSTOM_USER">${currentUser.username.toUpperCase()}</option>`;
-            select.value = "CUSTOM_USER";
-            select.disabled = true;
-            renderBookerDetail();
-            return;
+            select.value = "CUSTOM_USER"; select.disabled = true;
+            renderBookerDetail(); return;
         }
 
         select.disabled = false;
-        const sortedBookers = Array.from(bookerSet).sort((a, b) => a.localeCompare(b));
-        sortedBookers.forEach(b => select.innerHTML += `<option value="${b}">${b}</option>`);
+        Array.from(bookerSet).sort((a,b) => a.localeCompare(b)).forEach(b => select.innerHTML += `<option value="${b}">${b}</option>`);
         renderBookerDetail();
     }
 
     function renderBookerDetail() {
         let bSelect = cleanStr(document.getElementById('selectBooker').value);
-        if(currentUser && currentUser.role === 'booker') {
-            bSelect = cleanStr(currentUser.bookerName);
-        }
+        if(currentUser && currentUser.role === 'booker') bSelect = cleanStr(currentUser.bookerName);
 
         const rawToDate = document.getElementById('bookerToDate').value;
         const toDateObj = rawToDate ? parseFormattedDate(normalizeDate(rawToDate)) : null;
@@ -1471,26 +1450,17 @@
         if(!bSelect) {
             document.getElementById('bCardName').innerText = '-';
             document.getElementById('bCardBalance').innerText = 'Rs. 0';
-            tbody.innerHTML = '';
-            return;
+            tbody.innerHTML = ''; return;
         }
 
-        let displayName = currentUser && currentUser.role === 'custom_booker' ? currentUser.username.toUpperCase() : document.getElementById('selectBooker').value.toUpperCase();
-        document.getElementById('bCardName').innerText = displayName;
+        document.getElementById('bCardName').innerText = (currentUser && currentUser.role === 'custom_booker') ? currentUser.username.toUpperCase() : document.getElementById('selectBooker').value.toUpperCase();
         const shopSummary = {};
 
         for(let i = 0; i < transactions.length; i++) {
             const t = transactions[i];
             const isMatch = (currentUser && currentUser.role === 'custom_booker') ? true : (cleanStr(t.booker) === bSelect);
-            
-            if(isMatch) {
-                if(!isShopAllowedForUser(t.shop, t.booker)) continue;
-
-                if (toDateObj) {
-                    let tDateObj = parseFormattedDate(t.date);
-                    if (tDateObj > toDateObj) continue;
-                }
-
+            if(isMatch && isShopAllowedForUser(t.shop, t.booker)) {
+                if (toDateObj && parseFormattedDate(t.date) > toDateObj) continue;
                 const sName = t.shop.toUpperCase();
                 if(!shopSummary[sName]) shopSummary[sName] = { credit: 0, recovery: 0 };
                 shopSummary[sName].credit += t.credit;
@@ -1498,10 +1468,7 @@
             }
         }
 
-        let totalUdhaar = 0;
-        let html = '';
-        let sno = 1;
-
+        let totalUdhaar = 0, html = '', sno = 1;
         const sortedShops = Object.keys(shopSummary).sort((a, b) => a.localeCompare(b));
 
         for(const sName of sortedShops) {
@@ -1531,25 +1498,16 @@
         const toDateObj = rawToDate ? parseFormattedDate(normalizeDate(rawToDate)) : null;
         const hideZero = document.getElementById('hideZeroShops').checked;
         const tbody = document.getElementById('shopsTable');
-        const shopsMap = {};
-
-        const isAdmin = currentUser && currentUser.role === 'admin';
-
+        const shopsMap = {}, isAdmin = currentUser && currentUser.role === 'admin';
         const bookersList = new Set();
-        USERS_DATABASE.forEach(u => {
-            if(u.bookerName && u.bookerName !== 'ALL') bookersList.add(u.bookerName.toUpperCase());
-        });
+
+        USERS_DATABASE.forEach(u => { if(u.bookerName && u.bookerName !== 'ALL') bookersList.add(u.bookerName.toUpperCase()); });
 
         for(let i = 0; i < transactions.length; i++) {
             const t = transactions[i];
+            if (toDateObj && parseFormattedDate(t.date) > toDateObj) continue;
 
-            if (toDateObj) {
-                let tDateObj = parseFormattedDate(t.date);
-                if (tDateObj > toDateObj) continue;
-            }
-
-            const sName = t.shop.toUpperCase();
-            const bName = t.booker.toUpperCase();
+            const sName = t.shop.toUpperCase(), bName = t.booker.toUpperCase();
             if(!shopsMap[sName]) shopsMap[sName] = { booker: bName, credit: 0, recovery: 0 };
             shopsMap[sName].credit += t.credit;
             shopsMap[sName].recovery += t.recovery;
@@ -1557,18 +1515,13 @@
             bookersList.add(bName);
         }
 
-        let html = '';
-        let sno = 1;
-
+        let html = '', sno = 1;
         const sortedShops = Object.keys(shopsMap).sort((a, b) => a.localeCompare(b));
         const sortedBookersList = Array.from(bookersList).sort((a, b) => a.localeCompare(b));
 
         for(const sName of sortedShops) {
             const data = shopsMap[sName];
-            
-            if (!isShopAllowedForUser(sName, data.booker)) {
-                continue;
-            }
+            if (!isShopAllowedForUser(sName, data.booker)) continue;
 
             const net = data.credit - data.recovery;
             if(hideZero && net === 0) continue;
@@ -1579,7 +1532,6 @@
             });
 
             const escapedShopName = sName.replace(/'/g, "\\'");
-
             html += `
                 <tr>
                     <td class="no-print text-center admin-only"><input type="checkbox" class="shop-select-checkbox" value="${escapedShopName}"></td>
@@ -1602,90 +1554,54 @@
                 </tr>
             `;
         }
-
         tbody.innerHTML = html;
         if(document.getElementById('selectAllShops')) document.getElementById('selectAllShops').checked = false;
     }
 
     function toggleSelectAllShops(master) {
-        const checkboxes = document.querySelectorAll('.shop-select-checkbox');
-        checkboxes.forEach(cb => cb.checked = master.checked);
+        document.querySelectorAll('.shop-select-checkbox').forEach(cb => cb.checked = master.checked);
     }
 
     function deleteSelectedShops() {
         const checkboxes = document.querySelectorAll('.shop-select-checkbox:checked');
-        if(checkboxes.length === 0) {
-            alert('Please select at least one shop to delete!');
-            return;
-        }
-
+        if(checkboxes.length === 0) return alert('Select shops first!');
         const selectedShops = Array.from(checkboxes).map(cb => cleanStr(cb.value));
 
-        if(confirm(`Are you sure you want to delete ${selectedShops.length} selected shops and ALL their transaction entries?`)) {
-            const initialLen = transactions.length;
+        if(confirm(`Delete ${selectedShops.length} shops and their history?`)) {
             transactions = transactions.filter(t => !selectedShops.includes(cleanStr(t.shop)));
-            const deletedEntries = initialLen - transactions.length;
-            renderShops();
-            saveTransactionsToCloud();
-            alert(`Selected shops deleted successfully! (${deletedEntries} total transaction entries removed).`);
+            renderShops(); saveTransactionsToCloud();
         }
     }
 
     function editShopName(oldShopName) {
-        const newShopName = prompt("Enter new Shop Name for: " + oldShopName, oldShopName);
+        const newShopName = prompt("Enter new Shop Name:", oldShopName);
         if (!newShopName || newShopName.trim() === "") return;
         const cleanNewName = newShopName.trim().toUpperCase();
-        if (cleanNewName === oldShopName.toUpperCase()) return;
 
         let updatedCount = 0;
         for (let i = 0; i < transactions.length; i++) {
             if (cleanStr(transactions[i].shop) === cleanStr(oldShopName)) {
-                transactions[i].shop = cleanNewName;
-                updatedCount++;
+                transactions[i].shop = cleanNewName; updatedCount++;
             }
         }
-
-        if (updatedCount > 0) {
-            renderShops();
-            saveTransactionsToCloud();
-            alert(`Success! "${oldShopName}" name changed to "${cleanNewName}" in ${updatedCount} entries.`);
-        }
+        if (updatedCount > 0) { renderShops(); saveTransactionsToCloud(); }
     }
 
     function deleteShop(shopName) {
-        if (confirm(`Are you sure you want to DELETE "${shopName}" and ALL of its transaction history?`)) {
-            const initialLen = transactions.length;
+        if (confirm(`Delete "${shopName}" and ALL records?`)) {
             transactions = transactions.filter(t => cleanStr(t.shop) !== cleanStr(shopName));
-            const deletedEntries = initialLen - transactions.length;
-            renderShops();
-            saveTransactionsToCloud();
-            alert(`"${shopName}" removed! (${deletedEntries} transaction entries deleted).`);
+            renderShops(); saveTransactionsToCloud();
         }
     }
 
     function transferSingleShop(shopName, selectElementId) {
         const newBooker = document.getElementById(selectElementId).value.toUpperCase();
+        if(!newBooker || !confirm(`Transfer "${shopName}" to ${newBooker}?`)) return;
 
-        if(!newBooker) {
-            alert('Please select a Booker!');
-            return;
-        }
-
-        if(!confirm(`Are you sure you want to transfer "${shopName}" to Booker: ${newBooker}?`)) {
-            return;
-        }
-
-        let count = 0;
         for(let i = 0; i < transactions.length; i++) {
-            if(cleanStr(transactions[i].shop) === cleanStr(shopName)) {
-                transactions[i].booker = newBooker;
-                count++;
-            }
+            if(cleanStr(transactions[i].shop) === cleanStr(shopName)) transactions[i].booker = newBooker;
         }
-
-        renderShops();
-        saveTransactionsToCloud();
-        alert(`Success! "${shopName}" with ${count} entries has been transferred to ${newBooker}.`);
+        renderShops(); saveTransactionsToCloud();
     }
 
     function toggleUserRoleFields() {
@@ -1711,20 +1627,11 @@
     function populateAllowedBookersCheckboxes() {
         const container = document.getElementById('bookersCheckboxesList');
         const bookerSet = new Set();
-        USERS_DATABASE.forEach(u => {
-            if (u.bookerName && u.bookerName !== 'ALL' && u.bookerName !== 'CUSTOM') bookerSet.add(u.bookerName.toUpperCase());
-        });
-        transactions.forEach(t => {
-            if (t.booker) bookerSet.add(t.booker.toUpperCase());
-        });
+        USERS_DATABASE.forEach(u => { if (u.bookerName && u.bookerName !== 'ALL' && u.bookerName !== 'CUSTOM') bookerSet.add(u.bookerName.toUpperCase()); });
+        transactions.forEach(t => { if (t.booker) bookerSet.add(t.booker.toUpperCase()); });
 
         const sortedBookers = Array.from(bookerSet).sort((a, b) => a.localeCompare(b));
         const cleanSelected = currentlySelectedUserBookers.map(b => cleanStr(b));
-
-        if (sortedBookers.length === 0) {
-            container.innerHTML = '<span style="color:#888; font-size:12px;">No Bookers found.</span>';
-            return;
-        }
 
         let html = '';
         sortedBookers.forEach((bName, idx) => {
@@ -1732,37 +1639,27 @@
             html += `
                 <div class="shop-permission-item">
                     <input type="checkbox" class="user-allowed-booker-cb" value="${bName}" id="cb_booker_${idx}" ${isChecked} onchange="trackCheckedBooker(this)">
-                    <label for="cb_booker_${idx}">
-                        <span>${bName}</span>
-                    </label>
+                    <label for="cb_booker_${idx}"><span>${bName}</span></label>
                 </div>
             `;
         });
-
-        container.innerHTML = html;
+        container.innerHTML = html || '<span style="color:#888; font-size:12px;">No Bookers found.</span>';
     }
 
     function trackCheckedBooker(cb) {
         const val = cb.value.toUpperCase();
-        if (cb.checked) {
-            if (!currentlySelectedUserBookers.includes(val)) currentlySelectedUserBookers.push(val);
-        } else {
-            currentlySelectedUserBookers = currentlySelectedUserBookers.filter(b => b !== val);
-        }
+        if (cb.checked) { if (!currentlySelectedUserBookers.includes(val)) currentlySelectedUserBookers.push(val); }
+        else { currentlySelectedUserBookers = currentlySelectedUserBookers.filter(b => b !== val); }
     }
 
     function populateFilterBookersDropdown() {
         const bSelect = document.getElementById('filterBookerShopsDropdown');
         if(!bSelect) return;
-
         bSelect.innerHTML = '<option value="ALL">-- Show All Bookers Shops --</option>';
         const bookerSet = new Set();
-        transactions.forEach(t => {
-            if(t.booker) bookerSet.add(t.booker.toUpperCase());
-        });
+        transactions.forEach(t => { if(t.booker) bookerSet.add(t.booker.toUpperCase()); });
 
-        const sortedBookers = Array.from(bookerSet).sort((a,b) => a.localeCompare(b));
-        sortedBookers.forEach(b => {
+        Array.from(bookerSet).sort((a,b) => a.localeCompare(b)).forEach(b => {
             bSelect.innerHTML += `<option value="${b}">${b}</option>`;
         });
     }
@@ -1770,29 +1667,15 @@
     function populateShopsCheckboxesByBooker(selectedBookerFilter) {
         const container = document.getElementById('shopsCheckboxesList');
         const shopsMap = {};
-
-        transactions.forEach(t => {
-            if (t.shop) {
-                const sName = t.shop.toUpperCase();
-                const bName = t.booker ? t.booker.toUpperCase() : '';
-                shopsMap[sName] = bName;
-            }
-        });
+        transactions.forEach(t => { if (t.shop) shopsMap[t.shop.toUpperCase()] = t.booker ? t.booker.toUpperCase() : ''; });
 
         const sortedShops = Object.keys(shopsMap).sort((a, b) => a.localeCompare(b));
         const cleanSelected = currentlySelectedUserShops.map(s => cleanStr(s));
 
-        if (sortedShops.length === 0) {
-            container.innerHTML = '<span style="color:#888; font-size:12px;">No shops found in database.</span>';
-            return;
-        }
-
         let html = '';
         sortedShops.forEach((shop, idx) => {
             const shopBooker = shopsMap[shop];
-            if (selectedBookerFilter !== 'ALL' && cleanStr(shopBooker) !== cleanStr(selectedBookerFilter)) {
-                return;
-            }
+            if (selectedBookerFilter !== 'ALL' && cleanStr(shopBooker) !== cleanStr(selectedBookerFilter)) return;
 
             const isChecked = cleanSelected.includes(cleanStr(shop)) ? 'checked' : '';
             html += `
@@ -1800,34 +1683,25 @@
                     <input type="checkbox" class="user-allowed-shop-cb" value="${shop}" id="cb_shop_${idx}" ${isChecked} onchange="trackCheckedShop(this)">
                     <label for="cb_shop_${idx}">
                         <span>${shop}</span>
-                        <small style="color:#888; font-weight: normal;">(${shopBooker})</small>
+                        <small style="color:#888;">(${shopBooker})</small>
                     </label>
                 </div>
             `;
         });
-
-        container.innerHTML = html || '<span style="color:#888; font-size:12px;">No shops match filter.</span>';
+        container.innerHTML = html || '<span style="color:#888; font-size:12px;">No shops found.</span>';
     }
 
     function trackCheckedShop(cb) {
         const val = cb.value.toUpperCase();
-        if (cb.checked) {
-            if (!currentlySelectedUserShops.includes(val)) currentlySelectedUserShops.push(val);
-        } else {
-            currentlySelectedUserShops = currentlySelectedUserShops.filter(s => s !== val);
-        }
+        if (cb.checked) { if (!currentlySelectedUserShops.includes(val)) currentlySelectedUserShops.push(val); }
+        else { currentlySelectedUserShops = currentlySelectedUserShops.filter(s => s !== val); }
     }
 
     function filterShopsInCheckboxList(searchTerm) {
         const term = cleanStr(searchTerm);
-        const items = document.querySelectorAll('.shop-permission-item');
-        items.forEach(item => {
+        document.querySelectorAll('.shop-permission-item').forEach(item => {
             const shopName = item.getAttribute('data-shopname');
-            if (shopName.includes(term)) {
-                item.style.display = 'flex';
-            } else {
-                item.style.display = 'none';
-            }
+            item.style.display = shopName.includes(term) ? 'flex' : 'none';
         });
     }
 
@@ -1835,7 +1709,6 @@
         const tbody = document.getElementById('usersTable');
         const fromSel = document.getElementById('transferFromBooker');
         const toSel = document.getElementById('transferToBooker');
-        
         fromSel.innerHTML = '<option value="">-- From Booker (Absent) --</option>';
         toSel.innerHTML = '<option value="">-- To Booker (New/Covering) --</option>';
 
@@ -1845,16 +1718,12 @@
         USERS_DATABASE.forEach((u, i) => {
             let detailText = u.bookerName || '-';
             if (u.role === 'custom_booker') {
-                const bCount = (u.allowedBookers || []).length;
-                const sCount = (u.allowedShops || []).length;
-                detailText = `Custom Access (${bCount} Bookers, ${sCount} Shops Allowed)`;
+                detailText = `Custom Access (${(u.allowedBookers || []).length} Bookers, ${(u.allowedShops || []).length} Shops Allowed)`;
             }
 
             const onlineBadge = u.isOnline 
                 ? `<span class="badge-online"><span class="status-dot"></span> ONLINE</span>`
                 : `<span class="badge-offline"><span class="status-dot-offline"></span> Offline</span>`;
-
-            const lastActiveTime = u.lastActive || "-";
 
             html += `
                 <tr>
@@ -1864,26 +1733,18 @@
                     <td class="text-center">${u.role.toUpperCase()}</td>
                     <td class="text-left">${detailText}</td>
                     <td class="text-center">${onlineBadge}</td>
-                    <td class="text-left" style="font-size: 11px;">${lastActiveTime}</td>
+                    <td class="text-left" style="font-size: 11px;">${u.lastActive || "-"}</td>
                     <td class="no-print text-center">
                         <button class="btn-edit" onclick="editUser(${i})">Edit</button>
                         ${u.username !== 'admin' ? `<button class="btn-delete" onclick="deleteUser(${i})">Delete</button>` : '<span style="color:#aaa; font-size:11px;">(Master Admin)</span>'}
                     </td>
                 </tr>
             `;
-
-            if(u.bookerName && u.bookerName !== 'ALL') {
-                bookerNamesSet.add(u.bookerName.toUpperCase());
-            }
+            if(u.bookerName && u.bookerName !== 'ALL') bookerNamesSet.add(u.bookerName.toUpperCase());
         });
 
-        transactions.forEach(t => {
-            if(t.booker) bookerNamesSet.add(t.booker.toUpperCase());
-        });
-
-        const sortedBookerNames = Array.from(bookerNamesSet).sort((a, b) => a.localeCompare(b));
-
-        sortedBookerNames.forEach(b => {
+        transactions.forEach(t => { if(t.booker) bookerNamesSet.add(t.booker.toUpperCase()); });
+        Array.from(bookerNamesSet).sort((a, b) => a.localeCompare(b)).forEach(b => {
             fromSel.innerHTML += `<option value="${b}">${b}</option>`;
             toSel.innerHTML += `<option value="${b}">${b}</option>`;
         });
@@ -1898,26 +1759,16 @@
         let bName = document.getElementById('newBookerName').value.trim().toUpperCase();
         const editIdx = parseInt(document.getElementById('editUserIndex').value);
 
-        let allowedShops = [];
-        let allowedBookers = [];
+        let allowedShops = [], allowedBookers = [];
         if (role === 'custom_booker') {
             bName = 'CUSTOM';
             allowedShops = [...currentlySelectedUserShops];
             allowedBookers = [...currentlySelectedUserBookers];
         }
 
-        if(!uName || !pWord || (role !== 'custom_booker' && !bName)) return alert('Fill all required fields!');
+        if(!uName || !pWord || (role !== 'custom_booker' && !bName)) return alert('Fill all fields!');
 
-        const userObj = { 
-            username: uName, 
-            password: pWord, 
-            role, 
-            bookerName: bName, 
-            allowedShops,
-            allowedBookers,
-            isOnline: false,
-            lastActive: "Never Logged In"
-        };
+        const userObj = { username: uName, password: pWord, role, bookerName: bName, allowedShops, allowedBookers, isOnline: false, lastActive: "Never Logged In" };
 
         if(editIdx >= 0) {
             userObj.isOnline = USERS_DATABASE[editIdx].isOnline || false;
@@ -1926,21 +1777,14 @@
             document.getElementById('editUserIndex').value = -1;
             document.getElementById('saveUserBtn').innerText = 'Create User 👤';
             document.getElementById('userFormTitle').innerText = '⚙️ Create New User';
-            alert('User Updated Successfully!');
         } else {
             USERS_DATABASE.push(userObj);
-            alert('User Created Successfully!');
         }
 
-        renderUsers();
-        saveUsersToCloud();
-        
-        document.getElementById('newUsername').value = '';
-        document.getElementById('newPassword').value = '';
-        document.getElementById('newBookerName').value = '';
-        document.getElementById('newUserRole').value = 'booker';
-        currentlySelectedUserShops = [];
-        currentlySelectedUserBookers = [];
+        renderUsers(); saveUsersToCloud();
+        document.getElementById('newUsername').value = ''; document.getElementById('newPassword').value = '';
+        document.getElementById('newBookerName').value = ''; document.getElementById('newUserRole').value = 'booker';
+        currentlySelectedUserShops = []; currentlySelectedUserBookers = [];
         toggleUserRoleFields();
     }
 
@@ -1956,48 +1800,24 @@
         currentlySelectedUserBookers = u.allowedBookers ? [...u.allowedBookers] : [];
 
         toggleUserRoleFields();
-
         document.getElementById('saveUserBtn').innerText = 'Update User ✏️';
         document.getElementById('userFormTitle').innerText = '✏️ Edit User Details';
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     function deleteUser(index) {
-        if(confirm('Are you sure you want to delete this user?')) {
-            USERS_DATABASE.splice(index, 1);
-            renderUsers();
-            saveUsersToCloud();
-        }
+        if(confirm('Delete user?')) { USERS_DATABASE.splice(index, 1); renderUsers(); saveUsersToCloud(); }
     }
 
     function reassignBookerShops() {
         const fromB = cleanStr(document.getElementById('transferFromBooker').value);
         const toB = document.getElementById('transferToBooker').value.toUpperCase();
+        if(!fromB || !toB || fromB === cleanStr(toB)) return alert('Select valid different bookers!');
 
-        if(!fromB || !toB) {
-            alert('Please select both From Booker and To Booker!');
-            return;
+        if(confirm(`Transfer all entries from ${fromB.toUpperCase()} to ${toB}?`)) {
+            transactions.forEach(t => { if(cleanStr(t.booker) === fromB) t.booker = toB; });
+            saveTransactionsToCloud(); alert('Transferred successfully!');
         }
-
-        if(fromB === cleanStr(toB)) {
-            alert('Both Bookers cannot be the same!');
-            return;
-        }
-
-        if(!confirm(`Are you sure you want to transfer all shops and records from ${fromB.toUpperCase()} to ${toB}?`)) {
-            return;
-        }
-
-        let count = 0;
-        for(let i = 0; i < transactions.length; i++) {
-            if(cleanStr(transactions[i].booker) === fromB) {
-                transactions[i].booker = toB;
-                count++;
-            }
-        }
-
-        saveTransactionsToCloud();
-        alert(`Success! Transferred ${count} entries from ${fromB.toUpperCase()} to ${toB}.`);
     }
 
     function downloadBackup() {
@@ -2012,21 +1832,13 @@
     function restoreBackup(event) {
         const file = event.target.files[0];
         if(!file) return;
-
         const reader = new FileReader();
         reader.onload = function(e) {
             try {
                 const imported = JSON.parse(e.target.result);
-                if(imported.transactions) {
-                    transactions = imported.transactions;
-                    saveTransactionsToCloud();
-                }
-                if(imported.users) {
-                    USERS_DATABASE = imported.users;
-                    saveUsersToCloud();
-                }
-                refreshCurrentTab();
-                alert('Restored Successfully!');
+                if(imported.transactions) { transactions = imported.transactions; saveTransactionsToCloud(); }
+                if(imported.users) { USERS_DATABASE = imported.users; saveUsersToCloud(); }
+                refreshCurrentTab(); alert('Restored Successfully!');
             } catch(err) { alert('Invalid File!'); }
         };
         reader.readAsText(file);
@@ -2039,6 +1851,73 @@
         a.href = URL.createObjectURL(blob);
         a.download = `${filename}.xls`;
         a.click();
+    }
+
+    /* ================= AI SMART ASSISTANT SYSTEM ================= */
+    function toggleAiChat() {
+        const chatWin = document.getElementById('aiChatWindow');
+        chatWin.style.display = (chatWin.style.display === 'flex') ? 'none' : 'flex';
+    }
+
+    function speakText(text) {
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'ur-PK'; // Urdu Accent
+            window.speechSynthesis.speak(utterance);
+        }
+    }
+
+    function sendAiMessage() {
+        const input = document.getElementById('aiChatInput');
+        const text = input.value.trim();
+        if (!text) return;
+
+        appendAiMessage(text, 'user');
+        input.value = '';
+
+        setTimeout(() => {
+            const reply = processAiCommand(text);
+            appendAiMessage(reply, 'bot');
+            speakText(reply.replace(/[*_#]/g, ''));
+        }, 500);
+    }
+
+    function appendAiMessage(text, sender) {
+        const box = document.getElementById('aiChatMessages');
+        const msgDiv = document.createElement('div');
+        msgDiv.className = `ai-msg ${sender}`;
+        msgDiv.innerText = text;
+        box.appendChild(msgDiv);
+        box.scrollTop = box.scrollHeight;
+    }
+
+    function processAiCommand(msg) {
+        const query = msg.toLowerCase();
+
+        if (query.includes('hello') || query.includes('hi') || query.includes('salam') || query.includes('kaise')) {
+            return "Walaikum Assalam! Main Al Qadir App ka AI Assistant hoon. Aap muzse Daily Entry, Ledger, Booker, Shops list ya Backup ke bare me kuch bhi pooch sakte hain!";
+        }
+        if (query.includes('entry') || query.includes('ندراج') || query.includes('add')) {
+            return "Daily Entry karne ke liye: Admin login karein, '📝 Daily Entry' tab par jayein, Booker select karein, Dukaan ka naam aur Credit/Recovery likh kar 'Save Entry' dabaein.";
+        }
+        if (query.includes('ledger') || query.includes('khata') || query.includes('کھاتہ')) {
+            return "Shop Ledger dekhne ke liye '🔍 Shop Ledger' tab par jayein, aur kisi bhi shop ka naam type/select karein. Pure saal ka hisab samne aa jayega.";
+        }
+        if (query.includes('booker') || query.includes('بوکر')) {
+            return "Bookers ki performance aur credit dekhne ke liye '👔 Booker Detail' tab par jayein. Wahan har booker ki total dukano aur recovery ka hisab milega.";
+        }
+        if (query.includes('transfer') || query.includes('reassign')) {
+            return "Dukaan transfer karne ke liye: '🏪 Shops List' tab par jayein aur kisi dukaan ke aage new booker select karke 'Transfer' dabaein, ya 'User Management' me bulk transfer karein.";
+        }
+        if (query.includes('backup') || query.includes('save') || query.includes('restore')) {
+            return "Data safe rakhne ke liye '💾 Backup & Restore' tab par ja kar 'Download Backup' dabaein. Emergency me file upload karke data restore kar sakte hain.";
+        }
+        if (query.includes('coca cola') || query.includes('owner') || query.includes('adnan')) {
+            return "Yeh Software Al Qadir Traders (Coca-Cola Distribution) ke liye special Adnan Software Solutions ki taraf se design kiya gaya hai.";
+        }
+
+        return "Main samajh gaya hoon! Is app me 7 tabs hain: Dashboard, Daily Entry, Shop Ledger, Booker Detail, Shops Directory, User Management, aur Backup System. Aap kisi specific feature ke baare me pooch sakte hain.";
     }
 
     applyUserPermissions();
