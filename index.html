@@ -40,6 +40,9 @@
             height: 10px; width: 10px; background-color: #28a745; border-radius: 50%; display: inline-block;
             box-shadow: 0 0 8px #28a745; margin-right: 5px; animation: pulse 1.5s infinite;
         }
+        .status-dot-offline {
+            height: 10px; width: 10px; background-color: #6c757d; border-radius: 50%; display: inline-block; margin-right: 5px;
+        }
         @keyframes pulse {
             0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7); }
             70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(40, 167, 69, 0); }
@@ -50,22 +53,12 @@
             display: flex; justify-content: space-between; align-items: center;
             padding: 15px 20px; border-bottom: 4px solid #d1121d; margin-bottom: 15px; position: relative; flex-wrap: wrap; gap: 10px;
             background: linear-gradient(135deg, #ffffff 0%, #fff6f6 100%);
-            border-radius: 8px;
-            overflow: hidden;
+            border-radius: 8px; overflow: hidden;
         }
         .brand-header-custom::before {
-            content: 'AL QADIR';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) rotate(-5deg);
-            font-family: 'Cinzel', serif;
-            font-size: 80px;
-            font-weight: 900;
-            color: rgba(209, 18, 29, 0.04);
-            white-space: nowrap;
-            pointer-events: none;
-            z-index: 0;
+            content: 'AL QADIR'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-5deg);
+            font-family: 'Cinzel', serif; font-size: 80px; font-weight: 900; color: rgba(209, 18, 29, 0.04);
+            white-space: nowrap; pointer-events: none; z-index: 0;
         }
         .brand-left, .brand-center, .brand-right { position: relative; z-index: 1; }
         
@@ -80,7 +73,6 @@
         .brand-sub-ur { font-family: 'Noto Nastaliq Urdu', serif; font-size: 12px; color: #d1121d; margin-top: -2px; direction: rtl; font-weight: bold; }
         
         .brand-right { text-align: right; direction: ltr; display: flex; flex-direction: column; align-items: flex-end; }
-        
         .coca-cola-logo-img { height: 45px; width: auto; object-fit: contain; }
         .coca-cola-sub { font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 800; color: #555; letter-spacing: 1.5px; margin-top: 3px; text-transform: uppercase; text-align: right; }
         
@@ -136,6 +128,9 @@
         .bal-positive { color: #d1121d; font-weight: bold; }
         .bal-negative { color: #28a745; font-weight: bold; }
         .bal-zero { color: #555; font-weight: bold; }
+
+        .badge-online { background: #d4edda; color: #155724; padding: 3px 8px; border-radius: 12px; font-weight: bold; font-size: 11px; display: inline-flex; align-items: center; }
+        .badge-offline { background: #e2e3e5; color: #383d41; padding: 3px 8px; border-radius: 12px; font-size: 11px; display: inline-flex; align-items: center; }
 
         .shop-permission-box {
             border: 1px solid #ccc; border-radius: 5px; padding: 10px; max-height: 220px; overflow-y: auto; background: #fff; grid-column: 1 / -1;
@@ -231,7 +226,8 @@
         <button class="tab-btn" id="tabLedgerBtn" onclick="openTab('ledger', this)">🔍 Shop Ledger</button>
         <button class="tab-btn" id="tabBookerBtn" onclick="openTab('bookerLedger', this)">👔 Booker Detail</button>
         <button class="tab-btn" id="tabShopsBtn" onclick="openTab('shops', this)">🏪 Shops List</button>
-        <button class="tab-btn admin-only" id="tabUsersBtn" onclick="openTab('users', this)">⚙️ User Management</button>
+
+        <button class="tab-btn admin-only" id="tabUsersBtn" onclick="openTab('users', this)">⚙️ User Management & Activity</button>
         <button class="tab-btn admin-only" id="tabBackupBtn" onclick="openTab('backup', this)">💾 Backup & Restore</button>
     </div>
 
@@ -498,7 +494,7 @@
         </div>
     </div>
 
-    <!-- Tab 6: User Management -->
+    <!-- Tab 6: User Management & Activity Tracking -->
     <div id="users" class="tab-content admin-only-content">
         <h3 id="userFormTitle">⚙️ Create New User</h3>
         <form id="userForm">
@@ -556,7 +552,7 @@
             </div>
         </div>
 
-        <h4 style="margin-top: 25px;">Users List</h4>
+        <h4 style="margin-top: 25px;">Users List & Booker Live Activity Log</h4>
         <div class="table-responsive">
             <table>
                 <thead>
@@ -565,7 +561,9 @@
                         <th class="text-left">Username</th>
                         <th class="text-left">Password</th>
                         <th class="text-center">Role</th>
-                        <th class="text-left">Assigned Booker / Allowed Shops</th>
+                        <th class="text-left">Assigned Booker</th>
+                        <th class="text-center">Live Status</th>
+                        <th class="text-left">Last Login / Logout Time</th>
                         <th class="no-print text-center">Action</th>
                     </tr>
                 </thead>
@@ -635,10 +633,9 @@
 
     // Default Admin User Only
     const DEFAULT_USERS = [
-        { username: "admin", password: "adnan1414", role: "admin", bookerName: "ALL", allowedShops: [] }
+        { username: "admin", password: "adnan1414", role: "admin", bookerName: "ALL", allowedShops: [], isOnline: false, lastActive: "-" }
     ];
 
-    // Empty Default Transactions
     const DEFAULT_TRANSACTIONS = [];
 
     let USERS_DATABASE = DEFAULT_USERS;
@@ -671,7 +668,8 @@
         refreshCurrentTab();
     });
 
-    db.ref('pos_users_db').once('value', snapshot => {
+    // Real-time listener for user activity
+    db.ref('pos_users_db').on('value', snapshot => {
         const val = snapshot.val();
         if (val) {
             USERS_DATABASE = Array.isArray(val) ? val : Object.values(val);
@@ -679,7 +677,9 @@
             USERS_DATABASE = DEFAULT_USERS;
         }
         populateEntryBookersDropdown();
-        refreshCurrentTab();
+        if (document.querySelector('.tab-content.active')?.id === 'users') {
+            renderUsers();
+        }
     });
 
     function saveTransactionsToCloud() {
@@ -705,7 +705,8 @@
     function updateAsOfLabel(type) {
         document.getElementById('reportTypeLabel').innerText = type;
         if(transactions.length > 0) {
-            const maxDate = transactions[transactions.length - 1].date;
+            const sorted = [...transactions].sort((a,b) => a.date.localeCompare(b.date));
+            const maxDate = sorted[sorted.length - 1].date;
             document.getElementById('asOfDateLabel').innerText = maxDate || "--";
         } else {
             document.getElementById('asOfDateLabel').innerText = "--";
@@ -723,11 +724,18 @@
         const uInput = cleanStr(document.getElementById('loginUser').value);
         const pInput = document.getElementById('loginPass').value.trim();
 
-        const foundUser = USERS_DATABASE.find(u => cleanStr(u.username) === uInput && u.password === pInput);
+        const userIdx = USERS_DATABASE.findIndex(u => cleanStr(u.username) === uInput && u.password === pInput);
 
-        if(foundUser) {
-            currentUser = foundUser;
+        if(userIdx !== -1) {
+            const nowStr = new Date().toLocaleString('en-US', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit', hour12: true });
+            
+            USERS_DATABASE[userIdx].isOnline = true;
+            USERS_DATABASE[userIdx].lastActive = `Login: ${nowStr}`;
+            
+            currentUser = USERS_DATABASE[userIdx];
             sessionStorage.setItem('pos_current_user', JSON.stringify(currentUser));
+            
+            saveUsersToCloud();
             applyUserPermissions();
         } else {
             alert('Invalid Username or Password!');
@@ -735,6 +743,15 @@
     }
 
     function logout() {
+        if(currentUser) {
+            const uIdx = USERS_DATABASE.findIndex(u => cleanStr(u.username) === cleanStr(currentUser.username));
+            if(uIdx !== -1) {
+                const nowStr = new Date().toLocaleString('en-US', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit', hour12: true });
+                USERS_DATABASE[uIdx].isOnline = false;
+                USERS_DATABASE[uIdx].lastActive = `Last Active: ${nowStr}`;
+                saveUsersToCloud();
+            }
+        }
         sessionStorage.removeItem('pos_current_user');
         currentUser = null;
         document.getElementById('loginOverlay').style.display = 'flex';
@@ -942,6 +959,7 @@
         const limitVal = document.getElementById('entryLimitSelect').value;
         const toDate = document.getElementById('entryToDate').value;
 
+        // Cumulative Filter: Date up to Selected As On Date
         let filtered = transactions.filter(t => {
             if (toDate && t.date > toDate) return false;
             return true;
@@ -1039,6 +1057,7 @@
         for(let i = 0; i < transactions.length; i++) {
             const t = transactions[i];
 
+            // Accumulate data up to the selected As On Date
             if (toDate && t.date > toDate) continue;
 
             const b = t.booker ? t.booker.toUpperCase() : '';
@@ -1144,12 +1163,16 @@
         let html = '';
         let sno = 1;
 
-        for(let i = 0; i < transactions.length; i++) {
-            const t = transactions[i];
+        // Sort chronologically for accurate running ledger calculations
+        let sortedTx = [...transactions].sort((a, b) => a.date.localeCompare(b.date));
+
+        for(let i = 0; i < sortedTx.length; i++) {
+            const t = sortedTx[i];
 
             if(cleanStr(t.shop).includes(query)) {
                 if(!isShopAllowedForUser(t.shop, t.booker)) continue;
                 
+                // Accumulate opening history up to As On Date
                 if (toDate && toDate.trim() !== '' && t.date > toDate) continue;
 
                 runningBal += (t.credit - t.recovery);
@@ -1231,6 +1254,7 @@
             if(isMatch) {
                 if(!isShopAllowedForUser(t.shop, t.booker)) continue;
 
+                // Accumulate running total up to As On Date
                 if (toDate && t.date > toDate) continue;
 
                 const sName = t.shop.toUpperCase();
@@ -1284,6 +1308,7 @@
         for(let i = 0; i < transactions.length; i++) {
             const t = transactions[i];
 
+            // Cumulative balance calculation up to As On Date
             if (toDate && t.date > toDate) continue;
 
             const sName = t.shop.toUpperCase();
@@ -1537,13 +1562,21 @@
                 detailText = `Custom Access (${count} Shops Allowed)`;
             }
 
+            const onlineBadge = u.isOnline 
+                ? `<span class="badge-online"><span class="status-dot"></span> ONLINE</span>`
+                : `<span class="badge-offline"><span class="status-dot-offline"></span> Offline</span>`;
+
+            const lastActiveTime = u.lastActive || "-";
+
             html += `
                 <tr>
                     <td class="text-center">${i + 1}</td>
-                    <td class="text-left">${u.username}</td>
+                    <td class="text-left"><strong>${u.username}</strong></td>
                     <td class="text-left">${u.password}</td>
                     <td class="text-center">${u.role.toUpperCase()}</td>
                     <td class="text-left">${detailText}</td>
+                    <td class="text-center">${onlineBadge}</td>
+                    <td class="text-left" style="font-size: 11px;">${lastActiveTime}</td>
                     <td class="no-print text-center">
                         <button class="btn-edit" onclick="editUser(${i})">Edit</button>
                         ${u.username !== 'admin' ? `<button class="btn-delete" onclick="deleteUser(${i})">Delete</button>` : '<span style="color:#aaa; font-size:11px;">(Master Admin)</span>'}
@@ -1585,9 +1618,19 @@
 
         if(!uName || !pWord || (role !== 'custom_booker' && !bName)) return alert('Fill all required fields!');
 
-        const userObj = { username: uName, password: pWord, role, bookerName: bName, allowedShops };
+        const userObj = { 
+            username: uName, 
+            password: pWord, 
+            role, 
+            bookerName: bName, 
+            allowedShops,
+            isOnline: false,
+            lastActive: "Never Logged In"
+        };
 
         if(editIdx >= 0) {
+            userObj.isOnline = USERS_DATABASE[editIdx].isOnline || false;
+            userObj.lastActive = USERS_DATABASE[editIdx].lastActive || "Never Logged In";
             USERS_DATABASE[editIdx] = userObj;
             document.getElementById('editUserIndex').value = -1;
             document.getElementById('saveUserBtn').innerText = 'Create User 👤';
