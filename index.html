@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🟢 Al Qadir Traders - Market Credit Ledger System</title>
-    <!-- Dynamic Green Favicon for Browser Tab -->
     <link id="dynamicFavicon" rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='45' fill='%2328a745'/></svg>">
     
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Montserrat:wght@800;900&family=Noto+Nastaliq+Urdu:wght@700&family=Amiri:wght@700&display=swap" rel="stylesheet">
@@ -221,7 +220,7 @@
     </div>
     
     <div class="tabs no-print">
-        <button class="tab-btn active admin-only" id="tabDashBtn" onclick="openTab('dashboard', this)">📊 Dashboard</button>
+        <button class="tab-btn active dashboard-tab-btn" id="tabDashBtn" onclick="openTab('dashboard', this)">📊 Dashboard</button>
         <button class="tab-btn admin-only" id="tabEntryBtn" onclick="openTab('entry', this)">📝 Daily Entry</button>
         <button class="tab-btn" id="tabLedgerBtn" onclick="openTab('ledger', this)">🔍 Shop Ledger</button>
         <button class="tab-btn" id="tabBookerBtn" onclick="openTab('bookerLedger', this)">👔 Booker Detail</button>
@@ -231,7 +230,7 @@
     </div>
 
     <!-- Tab 1: Dashboard -->
-    <div id="dashboard" class="tab-content active admin-only-content">
+    <div id="dashboard" class="tab-content active">
         <div class="filter-box no-print" style="margin-bottom: 15px;">
             <div style="display: flex; align-items: center; gap: 5px;">
                 <label style="font-size: 12px; font-weight: bold;">As On Date:</label>
@@ -514,13 +513,20 @@
                 <label>Role <span class="required-star">*</span>:</label>
                 <select id="newUserRole" onchange="toggleUserRoleFields()">
                     <option value="booker">Booker (View Only - All assigned booker shops)</option>
-                    <option value="custom_booker">Custom Access Booker (Selective Shops Allowed)</option>
+                    <option value="custom_booker">Custom Access Booker (Selective Bookers/Shops Allowed)</option>
                     <option value="admin">Admin (Full Access)</option>
                 </select>
             </div>
             <div class="form-group" id="assignedBookerGroup">
                 <label>Assigned Booker Name <span class="required-star">*</span>:</label>
                 <input type="text" id="newBookerName" placeholder="e.g. SHAHID">
+            </div>
+
+            <!-- New Custom Booker Selection for Allowed Bookers -->
+            <div class="form-group" id="allowedBookersGroup" style="grid-column: 1 / -1; display: none;">
+                <label>Select Allowed Bookers (Dashboard Show Access):</label>
+                <div class="shop-permission-box" id="bookersCheckboxesList" style="max-height: 150px; margin-bottom: 10px;">
+                </div>
             </div>
 
             <div class="form-group" id="allowedShopsGroup" style="grid-column: 1 / -1; display: none;">
@@ -564,7 +570,7 @@
                         <th class="text-left">Username</th>
                         <th class="text-left">Password</th>
                         <th class="text-center">Role</th>
-                        <th class="text-left">Assigned Booker</th>
+                        <th class="text-left">Assigned Booker / Custom Access</th>
                         <th class="text-center">Live Status</th>
                         <th class="text-left">Last Login / Logout Time</th>
                         <th class="no-print text-center">Action</th>
@@ -672,7 +678,7 @@
     }
 
     const DEFAULT_USERS = [
-        { username: "admin", password: "adnan1414", role: "admin", bookerName: "ALL", allowedShops: [], isOnline: false, lastActive: "-" }
+        { username: "admin", password: "adnan1414", role: "admin", bookerName: "ALL", allowedShops: [], allowedBookers: [], isOnline: false, lastActive: "-" }
     ];
 
     const DEFAULT_TRANSACTIONS = [];
@@ -681,6 +687,7 @@
     let currentUser = JSON.parse(sessionStorage.getItem('pos_current_user')) || null;
     let transactions = DEFAULT_TRANSACTIONS;
     let currentlySelectedUserShops = [];
+    let currentlySelectedUserBookers = [];
 
     function updateLiveClock() {
         const now = new Date();
@@ -817,9 +824,15 @@
 
         if(currentUser.role === 'admin') {
             document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'inline-block');
+            document.querySelector('.dashboard-tab-btn').style.display = 'inline-block';
+            openTab('dashboard', document.getElementById('tabDashBtn'));
+        } else if(currentUser.role === 'custom_booker') {
+            document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
+            document.querySelector('.dashboard-tab-btn').style.display = 'inline-block';
             openTab('dashboard', document.getElementById('tabDashBtn'));
         } else {
             document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
+            document.querySelector('.dashboard-tab-btn').style.display = 'none';
             openTab('bookerLedger', document.getElementById('tabBookerBtn'));
         }
     }
@@ -838,7 +851,7 @@
     }
 
     function openTab(tabId, btn) {
-        if(currentUser && currentUser.role !== 'admin' && (tabId === 'dashboard' || tabId === 'entry' || tabId === 'backup' || tabId === 'users')) {
+        if(currentUser && currentUser.role !== 'admin' && (tabId === 'entry' || tabId === 'backup' || tabId === 'users')) {
             alert('Access Denied!');
             return;
         }
@@ -855,6 +868,10 @@
         if (!currentUser) return false;
         if (currentUser.role === 'admin') return true;
         if (currentUser.role === 'custom_booker') {
+            const allowedBookersList = (currentUser.allowedBookers || []).map(b => cleanStr(b));
+            if (allowedBookersList.length > 0 && allowedBookersList.includes(cleanStr(bookerName))) {
+                return true;
+            }
             const allowedList = (currentUser.allowedShops || []).map(s => cleanStr(s));
             return allowedList.includes(cleanStr(shopName));
         }
@@ -1114,6 +1131,9 @@
 
             const b = t.booker ? t.booker.toUpperCase() : '';
             const s = t.shop ? t.shop.toUpperCase() : '';
+
+            if(!isShopAllowedForUser(s, b)) continue;
+
             const diff = t.credit - t.recovery;
 
             if(!bookerMap[b]) {
@@ -1223,7 +1243,6 @@
         let html = '';
         let sno = 1;
 
-        // Preserve original index for stable same-date sequence
         let sortedTx = transactions.map((t, originalIndex) => ({ ...t, originalIndex })).sort((a, b) => {
             let dateA = parseFormattedDate(a.date);
             let dateB = parseFormattedDate(b.date);
@@ -1553,16 +1572,61 @@
     function toggleUserRoleFields() {
         const role = document.getElementById('newUserRole').value;
         const bookerGroup = document.getElementById('assignedBookerGroup');
+        const allowedBookersGroup = document.getElementById('allowedBookersGroup');
         const shopsGroup = document.getElementById('allowedShopsGroup');
 
         if (role === 'custom_booker') {
             bookerGroup.style.display = 'none';
+            allowedBookersGroup.style.display = 'flex';
             shopsGroup.style.display = 'flex';
+            populateAllowedBookersCheckboxes();
             populateFilterBookersDropdown();
             populateShopsCheckboxesByBooker('ALL');
         } else {
             bookerGroup.style.display = 'flex';
+            allowedBookersGroup.style.display = 'none';
             shopsGroup.style.display = 'none';
+        }
+    }
+
+    function populateAllowedBookersCheckboxes() {
+        const container = document.getElementById('bookersCheckboxesList');
+        const bookerSet = new Set();
+        USERS_DATABASE.forEach(u => {
+            if (u.bookerName && u.bookerName !== 'ALL' && u.bookerName !== 'CUSTOM') bookerSet.add(u.bookerName.toUpperCase());
+        });
+        transactions.forEach(t => {
+            if (t.booker) bookerSet.add(t.booker.toUpperCase());
+        });
+
+        const sortedBookers = Array.from(bookerSet).sort((a, b) => a.localeCompare(b));
+        const cleanSelected = currentlySelectedUserBookers.map(b => cleanStr(b));
+
+        if (sortedBookers.length === 0) {
+            container.innerHTML = '<span style="color:#888; font-size:12px;">No Bookers found.</span>';
+            return;
+        }
+
+        let html = '';
+        sortedBookers.forEach((bName, idx) => {
+            const isChecked = cleanSelected.includes(cleanStr(bName)) ? 'checked' : '';
+            html += `
+                <div class="shop-permission-item">
+                    <input type="checkbox" class="user-allowed-booker-cb" value="${bName}" id="cb_booker_${idx}" ${isChecked} onchange="trackCheckedBooker(this)">
+                    <label for="cb_booker_${idx}" style="font-weight: bold; font-size: 13px; flex: 1;">${bName}</label>
+                </div>
+            `;
+        });
+
+        container.innerHTML = html;
+    }
+
+    function trackCheckedBooker(cb) {
+        const val = cb.value.toUpperCase();
+        if (cb.checked) {
+            if (!currentlySelectedUserBookers.includes(val)) currentlySelectedUserBookers.push(val);
+        } else {
+            currentlySelectedUserBookers = currentlySelectedUserBookers.filter(b => b !== val);
         }
     }
 
@@ -1657,8 +1721,9 @@
         USERS_DATABASE.forEach((u, i) => {
             let detailText = u.bookerName || '-';
             if (u.role === 'custom_booker') {
-                const count = (u.allowedShops || []).length;
-                detailText = `Custom Access (${count} Shops Allowed)`;
+                const bCount = (u.allowedBookers || []).length;
+                const sCount = (u.allowedShops || []).length;
+                detailText = `Custom Access (${bCount} Bookers, ${sCount} Shops Allowed)`;
             }
 
             const onlineBadge = u.isOnline 
@@ -1710,9 +1775,11 @@
         const editIdx = parseInt(document.getElementById('editUserIndex').value);
 
         let allowedShops = [];
+        let allowedBookers = [];
         if (role === 'custom_booker') {
             bName = 'CUSTOM';
             allowedShops = [...currentlySelectedUserShops];
+            allowedBookers = [...currentlySelectedUserBookers];
         }
 
         if(!uName || !pWord || (role !== 'custom_booker' && !bName)) return alert('Fill all required fields!');
@@ -1723,6 +1790,7 @@
             role, 
             bookerName: bName, 
             allowedShops,
+            allowedBookers,
             isOnline: false,
             lastActive: "Never Logged In"
         };
@@ -1748,6 +1816,7 @@
         document.getElementById('newBookerName').value = '';
         document.getElementById('newUserRole').value = 'booker';
         currentlySelectedUserShops = [];
+        currentlySelectedUserBookers = [];
         toggleUserRoleFields();
     }
 
@@ -1760,6 +1829,7 @@
         document.getElementById('editUserIndex').value = index;
         
         currentlySelectedUserShops = u.allowedShops ? [...u.allowedShops] : [];
+        currentlySelectedUserBookers = u.allowedBookers ? [...u.allowedBookers] : [];
 
         toggleUserRoleFields();
 
