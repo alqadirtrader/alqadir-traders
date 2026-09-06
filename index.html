@@ -135,7 +135,13 @@
             border: 1px solid #ccc; border-radius: 5px; padding: 10px; max-height: 220px; overflow-y: auto; background: #fff; grid-column: 1 / -1;
         }
         .shop-permission-item {
-            display: flex; align-items: center; gap: 8px; font-size: 13px; padding: 4px 0; border-bottom: 1px dashed #eee;
+            display: flex; align-items: center; justify-content: flex-start; gap: 12px; font-size: 13px; padding: 6px 8px; border-bottom: 1px dashed #eee; direction: ltr; text-align: left;
+        }
+        .shop-permission-item input[type="checkbox"] {
+            width: auto; margin: 0; cursor: pointer; flex-shrink: 0;
+        }
+        .shop-permission-item label {
+            cursor: pointer; font-weight: 600; color: #333; margin: 0; width: 100%; display: flex; justify-content: space-between; align-items: center;
         }
 
         @media (max-width: 768px) {
@@ -1326,7 +1332,7 @@
         }
 
         if(currentUser && currentUser.role === 'custom_booker') {
-            select.innerHTML = `<option value="CUSTOM_USER">${currentUser.username.toUpperCase()} (Custom Access)</option>`;
+            select.innerHTML = `<option value="CUSTOM_USER">${currentUser.username.toUpperCase()}</option>`;
             select.value = "CUSTOM_USER";
             select.disabled = true;
             renderBookerDetail();
@@ -1357,7 +1363,8 @@
             return;
         }
 
-        document.getElementById('bCardName').innerText = currentUser && currentUser.role === 'custom_booker' ? currentUser.username.toUpperCase() : document.getElementById('selectBooker').value.toUpperCase();
+        let displayName = currentUser && currentUser.role === 'custom_booker' ? currentUser.username.toUpperCase() : document.getElementById('selectBooker').value.toUpperCase();
+        document.getElementById('bCardName').innerText = displayName;
         const shopSummary = {};
 
         for(let i = 0; i < transactions.length; i++) {
@@ -1613,7 +1620,9 @@
             html += `
                 <div class="shop-permission-item">
                     <input type="checkbox" class="user-allowed-booker-cb" value="${bName}" id="cb_booker_${idx}" ${isChecked} onchange="trackCheckedBooker(this)">
-                    <label for="cb_booker_${idx}" style="font-weight: bold; font-size: 13px; flex: 1;">${bName}</label>
+                    <label for="cb_booker_${idx}">
+                        <span>${bName}</span>
+                    </label>
                 </div>
             `;
         });
@@ -1677,7 +1686,10 @@
             html += `
                 <div class="shop-permission-item" data-shopname="${shop.toLowerCase()}">
                     <input type="checkbox" class="user-allowed-shop-cb" value="${shop}" id="cb_shop_${idx}" ${isChecked} onchange="trackCheckedShop(this)">
-                    <label for="cb_shop_${idx}" style="font-weight: normal; font-size: 13px; flex: 1;">${shop} <small style="color:#888;">(${shopBooker})</small></label>
+                    <label for="cb_shop_${idx}">
+                        <span>${shop}</span>
+                        <small style="color:#888; font-weight: normal;">(${shopBooker})</small>
+                    </label>
                 </div>
             `;
         });
