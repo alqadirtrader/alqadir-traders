@@ -1155,7 +1155,7 @@
     }
 
     // ==========================================
-    // UPDATED LEDGER FUNCTION WITH OPENING BALANCE & AS-OF DATE
+    // UPDATED & FIXED LEDGER FUNCTION (FOR CSV & EMPTY FROM-DATE)
     // ==========================================
     function renderLedger() {
         const query = cleanStr(document.getElementById('searchShopInput').value);
@@ -1177,8 +1177,8 @@
         let html = '';
         let sno = 1;
 
-        // 1. Calculate Opening Balance if From Date is specified
-        if (fromDate) {
+        // 1. Calculate Opening Balance ONLY IF From Date exists and is not empty
+        if (fromDate && fromDate.trim() !== '') {
             for (let i = 0; i < transactions.length; i++) {
                 const t = transactions[i];
                 if (cleanStr(t.shop).includes(query)) {
@@ -1209,11 +1209,11 @@
             if(cleanStr(t.shop).includes(query)) {
                 if(!isShopAllowedForUser(t.shop, t.booker)) continue;
 
-                // Skip entries before From Date (already added in Opening Balance)
-                if (fromDate && t.date < fromDate) continue;
+                // Skip entries before From Date if From Date is specified
+                if (fromDate && fromDate.trim() !== '' && t.date < fromDate) continue;
                 
-                // Skip entries after To Date (Shows balance UP TO To Date)
-                if (toDate && t.date > toDate) continue;
+                // Skip entries after To Date if To Date is specified
+                if (toDate && toDate.trim() !== '' && t.date > toDate) continue;
 
                 runningBal += (t.credit - t.recovery);
 
